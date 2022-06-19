@@ -14,12 +14,15 @@
     - nft_script_folder
     - nft_loaded_variables
 
-- name: Include rules from rule file
+- name: Include rules from rules file
   include_vars:
-    dir: vars/
-    ignore_unknown_extensions: True
-    extensions:
-      - 'yaml'
+    file: vars/rules.yaml
+  when: not nft_rules
+
+- name: Include variables from variables file
+  include_vars:
+    file: vars/variables.yaml
+  when: not nft_variables
 
 - name: Verify that all rules are defined
   assert:
