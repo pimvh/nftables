@@ -13,14 +13,9 @@ pip3 install ansible
 
 Review the variables as shown in defaults. 
 
-Move rules.example and variables.example and define your custom rules and required variables for your firewall:
+1. Review rules.example and variables.example and define your custom rules and required variables for your firewall.
 
-```
-mv vars/rules.example /vars/rules.yaml 
-mv vars/variables.example /vars/variables.example
-```
-
-1. Add a firewall definition to the variables for your host (../host_vars/[host_name].yaml), group of hosts (../group_vars/[group_name].yaml) or to defaults/main.yaml, using the following structure:
+2. Add a firewall definition to the variables for your host (../host_vars/[host_name].yaml), group of hosts (../group_vars/[group_name].yaml) or to defaults/main.yaml, using the following structure:
 
 ```
 nftables:
