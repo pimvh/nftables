@@ -1,0 +1,38 @@
+---
+- name: install packages for managing abuse_ip blocklist with python
+  pip:
+    name:
+      - jinja2
+      - requests
+
+- name: move python script to lib
+  template:
+    src: manage_nft_abuseip_blocklist.py.j2
+    dest: "{{ nft_script_folder }}/manage_nft_abuseip_blocklist.py"
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=x
+  become: yes
+  when: abuseip_api_key is defined
+
+- name: Creates a cron file under /etc/cron.d
+  cron:
+    name: fetch abuseIPDB
+    minute: 0
+    hour: 0
+    day: "*"
+    month: "*"
+    weekday: "*"
+    user: root
+    job: "{{ nft_script_folder }}/manage_nft_abuseip_blocklist.py | tee -a /var/log/abuseip_blocklist.log > /dev/null"
+    state: present
+  become: yes
+  when: abuseip_api_key is defined
+
+- name: Set cron file to mail to an email when it goes wrong
+  cronvar:
+    name: MAILTO
+    value: "{{ email }}"
+  become: yes
+  when: abuseip_api_key is defined
+

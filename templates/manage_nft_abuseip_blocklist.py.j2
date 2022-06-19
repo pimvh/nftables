@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+import nftables
+import subprocess
+import json
+import ipaddress
+from jinja2 import Template
+import requests
+import sys
+import logging
+
+logging.basicConfig(level='INFO')
+logger = logging.getLogger(name=None)
+
+ABUSE_IP_API_KEY = "{{ abuseip_api_key }}"
+
+# template of blocklist
+{% raw %}
+template = """
+#!/usr/sbin/nft -f
+# managed by script
+# manage_nft_abuseip_blacklist.py
+
+table inet blocklist {
+        set ipv4-blackhole {
+                type ipv4_addr
+                elements = { {% for item in ipv4_blackhole %}{{ item }},{% if loop.index % 2 == 0 %}\n{% else %} {% endif %}{% endfor %} }
+
+        }
+
+        set ipv6-blackhole {
+                type ipv6_addr
+                elements = { {% for item in ipv6_blackhole %}{{ item }},{% if loop.index % 2 == 0 %}\n{% else %} {% endif %}{% endfor %} }
+        }
+
+        chain dropoffender {
+                type filter hook input priority filter - 2; policy accept;
+                ip saddr @ipv4-blackhole drop
+                ip6 saddr @ipv6-blackhole drop
+        }
+}
+"""
+{% endraw %}
+
+
+def fetch_abuse_ipdb_blocklist():
+    """ fetch data from abuseIPDB, create get request, and return json result """
+    headers = {"Key"    : ABUSE_IP_API_KEY,
+               "Accept" : "application/json"}
+
+    payload = {"confidenceMinimum"  : "75",
+               "limit"              : "9999999"}
+    try:
+        r = requests.get("https://api.abuseipdb.com/api/v2/blacklist", headers=headers, params=payload)
+        logger.info('HTTP get result status: %s', r.status_code)
+        return r.json()
+    except (requests.RequestException, requests.ConnectionError, requests.HTTPError, json.JSONDecodeError) as err:
+        logger.exception(err)
+        sys.exit()
+
+
+def create_abuse_ip_blocklist(abuse_ip_data : dict):
+    """ transform JSON data from abuseIPDB into string using jinja template,
+        dump to file and load using nft.cmd """
+    if not abuse_ip_data:
+        return
+
+    abuse_ip_data : dict = abuse_ip_data.get('data')
+
+    if not abuse_ip_data:
+        return
+
+    ipv4_blackhole : set = set()
+    ipv6_blackhole : set = set()
+
+    for element in abuse_ip_data:
+
+        is_ipv4 = True
+        ip_addr = element.get('ipAddress')
+
+        try:
+            ipaddress.IPv4Address(ip_addr)
+            ipv4_blackhole.add(ip_addr)
+            continue
+
+        except ValueError:
+            is_ipv4 = False
+            pass
+
+        try:
+            ipaddress.IPv6Address(ip_addr)
+            ipv6_blackhole.add(ip_addr)
+            continue
+
+        except ValueError:
+            if not is_ipv4:
+                logger.warning('Value found in fetched JSON that was not IPv4 or IPv6: %s', ip_addr)
+            continue
+
+    logger.info('IPs retrieved. # IPv4 addresses: %s, # IPv6 addresses: % s', len(ipv4_blackhole), len(ipv6_blackhole))
+
+    j2_template : jinja2.Template = Template(template)
+    output : str = j2_template.render(ipv4_blackhole=ipv4_blackhole, ipv6_blackhole=ipv6_blackhole)
+
+    with open('{{ nftables_dir }}/blocklist.nft', 'w') as outfile:
+        outfile.write(output)
+
+    # flush both sets
+    # then flush table
+    # then reload table
+    nft = nftables.Nftables()
+
+    for cmdline in ['flush set inet blocklist ipv4-blackhole',
+                    'flush set inet blocklist ipv6-blackhole',
+                    'flush table inet blocklist']:
+
+        rc, output, error = nft.cmd(cmdline)
+
+        if error:
+            logger.error(error)
+            return
+
+    logger.info('flushed blocklist and related sets')
+
+    # this does not seem to be supported, using python subprocess alternative
+    # rc, output, error = nft.cmd('-f {{ nftables_dir }}/blocklist.nft')
+    try:
+        subprocess.run(['nft', '-f' '{{ nftables_dir }}/blocklist.nft'], check=True)
+    except subprocess.CalledProcessError as e:
+        logger.exception('Error occured loading blocklist from file %s', e)
+
+    logger.info('loaded new blocklist')
+
+def main():
+    """ load data from abuseIPDB using get request by using the API,
+        then create nftables file based on jinja template, and load that using nft cmd """
+
+    abuse_ip_data = fetch_abuse_ipdb_blocklist()
+    create_abuse_ip_blocklist(abuse_ip_data)
+
+if __name__ == "__main__":
+    main()

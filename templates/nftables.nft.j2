@@ -1,0 +1,31 @@
+#!/usr/sbin/nft -f
+{{ ansible_managed | comment }}
+
+# include all files in current directory using an absolute path
+
+flush ruleset
+
+# include variables
+include "{{ nftables_dir }}/defines.nft"
+
+# Static tables
+{% for table, contents in nftables.items() %}
+{%- if contents.desc is defined %}
+# {{ contents.desc }}
+{% endif %}
+include "{{ nftables_dir }}/{{ table | strip_family }}.nft"
+
+{% endfor %}
+# ipv4/ipv6 blocklist of bad reputation IPs 
+include "{{ nftables_dir}}/blocklist.nft"
+
+# Dynamic tables
+{% for table, contents in dynamic_nftables.items() %}
+{%- if contents.desc is defined %}
+# {{ contents.desc }}
+{% endif %}
+include "{{ nftables_dir }}/{{ table | strip_family }}.nft"
+
+{% endfor %}
+
+

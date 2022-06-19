@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+{{ ansible_managed | comment }}
+
+# write flush of the table to a file to avoid losing state when reloading firewall
+# handy for docker, fail2ban and blocklist
+{% for table in  dynamic_nftables.keys() %}
+sudo nft list table {{ table }} | tee {{ nftables_dir }}/{{ table | strip_family }}.nft > /dev/null
+
+{% endfor -%}
+
+# reload the ruleset afterwards
+sudo nft -f {{ nftables_dir }}/nftables.nft

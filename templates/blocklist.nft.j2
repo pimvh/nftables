@@ -1,0 +1,21 @@
+#!/usr/sbin/nft -f
+# managed by script 
+# manage_nft_abuseip_blacklist.py
+
+table inet blacklist {
+    set ipv4-blackhole {
+        type ipv4_addr
+        # elements = { }
+    }
+
+    set ipv6-blackhole {
+        type ipv6_addr
+        # elements = { }        
+    }
+
+    chain dropoffender {
+        type filter hook input priority filter - 2; policy accept;
+        ip saddr @ipv4-blackhole drop                
+        ip6 saddr @ipv6-blackhole drop   
+    }
+}

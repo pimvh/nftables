@@ -1,0 +1,20 @@
+#!/usr/sbin/nft -f
+{{ ansible_managed | comment }}
+
+{% if nftables[table].desc is defined -%}
+# {{ nftables[table].desc }}
+{% endif %}
+table {{ table }} {
+{% if enable_filter_sets and table == "inet firewall" %}
+    include "{{ nftables_dir }}/filter_sets.nft"
+{% endif %}
+
+{% for chain, chain_rules in nftables[table].chains.items() %}
+    chain {{ chain }} {
+{% for chain_rule in chain_rules %}
+{{ nft_rules[chain_rule] | multiline_indent(indent=2) }}
+{% endfor %}
+    }
+    
+{% endfor -%}
+}
