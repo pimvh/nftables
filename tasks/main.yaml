@@ -63,24 +63,20 @@
   become: true
 
 - name: list nft tables
-  command: nft --json list tables
+  command: nft list tables
   become: true
   check_mode: no
   changed_when: false
-  register: current_nft_tables_json
-
-- name: Grab nft listed tables output
-  set_fact:
-    nft_table: "{{ current_nft_tables_json.stdout | from_json }}"
+  register: current_nft_tables
 
 - name: Grab current nfttable names from output
   set_fact:
-    nft_table_names: "{{ nft_table['nftables'] | map(attribute='table') | map(attribute='name') }}"
+    nft_table_names: "{{ current_nft_tables.stdout_lines | map('regex_replace','^table\ ','') }}"
 
 - name: Create tables that do not exist in nft (to avoid issues)
   command: "nft add table {{ table }}"
   become: true
-  when: not table | first | strip_family in nft_table_names
+  when: not table in nft_table_names
   loop: "{{ nftables.keys() }}"
   loop_control:
     loop_var: table
@@ -88,7 +84,7 @@
 - name: Create dynamic tables that do not exist in nft (to avoid issues)
   command: "nft add table {{ table }}"
   become: true
-  when: not table | first | strip_family in nft_table_names
+  when: not table in nft_table_names
   loop: "{{ dynamic_nftables.keys() | list + ['inet blocklist'] }}"
   loop_control:
     loop_var: table
@@ -119,7 +115,7 @@
   # validate: /usr/sbin/nft -c -f %s
   become: true
   # when table just got created
-  when: not table | first | strip_family in nft_table_names
+  when: not table in nft_table_names
   loop: "{{ dynamic_nftables.keys() }}"
   loop_control:
     loop_var: table
@@ -139,7 +135,6 @@
 - name: Copy all template nft files
   template:
     src: "table.nft.j2"
-    #src: "{{ table | strip_family }}.nft.j2"
     dest: "{{ nftables_dir }}/{{ table | strip_family }}.nft"
     mode: u=rw,g=r,o=
     # crashes on validation due to dependencies,
@@ -171,9 +166,19 @@
   command: "{{ nft_script_folder }}/reload_firewall.sh"
   become: true
 
+- name: create nftables systemd directory
+  file:
+    dest: /etc/systemd/system/nftables.service.d
+    state: directory
+    owner: root 
+    group: root
+    mode: u=rwx,g=rx,o=rx
+  become: true
+
 - name: copy nftables service file to edit it
   command: cp /lib/systemd/system/nftables.service /etc/systemd/system/nftables.service.d/override.conf
   become: true
+  when: not ansible_check_mode
 
 - name: edit nftables service to point to our main nftables file
   replace:
@@ -181,6 +186,7 @@
     regexp: \/etc\/nftables\.conf
     replace: '/etc/nftables/nftables.nft'
   become: true
+  when: not ansible_check_mode
 
 - name: enable nftables service
   service:
