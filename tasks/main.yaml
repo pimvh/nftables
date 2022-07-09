@@ -130,7 +130,7 @@
   # validate: /usr/sbin/nft -c -f %s
   become: true
   # when table just got created
-  when: not "blocklist" in nft_table_names
+  when: not "inet blocklist" in nft_table_names
 
 - name: Copy all template nft files
   template:
