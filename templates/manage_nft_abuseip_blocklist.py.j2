@@ -58,13 +58,13 @@ def fetch_abuse_ipdb_blocklist():
         sys.exit()
 
 
-def create_abuse_ip_blocklist(abuse_ip_data : dict):
+def create_abuse_ip_blocklist(abuse_ip_rawdata : dict):
     """ transform JSON data from abuseIPDB into string using jinja template,
         dump to file and load using nft.cmd """
     if not abuse_ip_data:
         return
 
-    abuse_ip_data : dict = abuse_ip_data.get('data')
+    abuse_ip_data : dict | None = abuse_ip_rawdata.get('data')
 
     if not abuse_ip_data:
         return
