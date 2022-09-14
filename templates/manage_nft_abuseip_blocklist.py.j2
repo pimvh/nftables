@@ -61,7 +61,7 @@ def fetch_abuse_ipdb_blocklist():
 def create_abuse_ip_blocklist(abuse_ip_rawdata : dict):
     """ transform JSON data from abuseIPDB into string using jinja template,
         dump to file and load using nft.cmd """
-    if not abuse_ip_data:
+    if not abuse_ip_rawdata:
         return
 
     abuse_ip_data : dict | None = abuse_ip_rawdata.get('data')
