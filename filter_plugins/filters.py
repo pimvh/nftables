@@ -18,12 +18,14 @@ class FilterModule():
         """ fix jinja multiline indentation """
         out = ""
 
+        indentation = indent * 4 * ' '
+
         if isinstance(obj, list):
             for x in obj:
-                out += indent * 4 * ' ' + str(x) + '\n'
+                out += indentation + str(x) + '\n'
             return out
 
-        return indent * 4 * ' ' + str(obj) + '\n'
+        return indentation + str(obj).replace('\n',indentation + '\n') + '\n'
 
     def strip_family(self, obj):
         """ strip family from nftable item """
