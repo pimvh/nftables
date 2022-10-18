@@ -7,7 +7,8 @@
       - "{{ item }} != None"
     fail_msg: "{{ item }} needs to be set for the role to work"
     success_msg: "Required variable {{ item }} is defined"
-  changed_when: no
+  changed_when: false
+  diff: false
   loop:
     - nftables
     - nftables_dir
@@ -32,7 +33,8 @@
       - "nft_rules.{{ item }} != None"
     fail_msg: "{{ item }} needs to be set for the role to work"
     success_msg: "Required variable {{ item }} is defined"
-  changed_when: no
+  changed_when: false
+  diff: false
   loop: "{{ nftables | get_rule_names }}"
 
 - name: Verify that all required variables are defined
@@ -65,7 +67,7 @@
 - name: list nft tables
   command: nft list tables
   become: true
-  check_mode: no
+  check_mode: false
   changed_when: false
   register: current_nft_tables
 
@@ -170,7 +172,7 @@
   file:
     dest: /etc/systemd/system/nftables.service.d
     state: directory
-    owner: root 
+    owner: root
     group: root
     mode: u=rwx,g=rx,o=rx
   become: true
