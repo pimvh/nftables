@@ -9,23 +9,31 @@ class FilterModule():
 
     def filters(self):
         return {
+            'is_list'           : self.is_list,
             'multiline_indent'  : self.multiline_indent,
             'strip_family'      : self.strip_family,
             'get_rule_names'    : self.get_rule_names,
         }
 
+    def is_list(self, obj):
+        """ boolean whether something is a list object """
+        if isinstance(obj, list):
+            return True
+        else:
+            return False
+
     def multiline_indent(self, obj, indent=1):
         """ fix jinja multiline indentation """
         out = ""
 
-        indentation = indent * 4 * ' '
+        indentation = indent * ' '
 
         if isinstance(obj, list):
             for x in obj:
                 out += indentation + str(x) + '\n'
             return out
 
-        return indentation + str(obj).replace('\n',indentation + '\n') + '\n'
+        return indentation + str(obj).replace('\n', indentation + '\n') + '\n'
 
     def strip_family(self, obj):
         """ strip family from nftable item """
