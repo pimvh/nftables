@@ -11,8 +11,13 @@ table {{ table }} {
 
 {% for chain, chain_rules in nftables[table].chains.items() %}
     chain {{ chain }} {
+
 {% for chain_rule in chain_rules %}
-{{ nft_rules[chain_rule] | multiline_indent(indent=2) }}
+{%- if nft_rules[chain_rule] | is_list %}
+{{ nft_rules[chain_rule] | multiline_indent(indent=8) }}
+{% else %}
+{{ nft_rules[chain_rule] | indent(width=8, first=True) }}
+{% endif -%}
 {% endfor %}
     }
 
