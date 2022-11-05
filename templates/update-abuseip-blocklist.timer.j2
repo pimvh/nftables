@@ -1,0 +1,12 @@
+[Unit]
+Description=Run update-abuseip-blocklist daily at 12:00
+Requires=update-abuseip-blocklist.service
+OnFailure=failmail@%N.service
+
+[Timer]
+Unit=update-abuseip-blocklist.service
+OnCalendar=*-*-* 00:05:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Runs blocklist manage script
+Wants=update-abuseip-blocklist.timer
+OnFailure=failmail@%N.service
+
+[Service]
+ExecStart={{ nft_script_folder }}/manage_nft_abuseip_blocklist.py
+
+[Install]
+WantedBy=multi-user.target
