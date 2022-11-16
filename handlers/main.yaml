@@ -1,0 +1,4 @@
+- name: reload nft ruleset
+  command: "{{ nft_script_folder }}/reload_firewall.sh"
+  become: true
+  listen: "reload ruleset"

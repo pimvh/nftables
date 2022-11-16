@@ -1,54 +1,39 @@
 ---
-- name: Verify that required variables are defined
-  assert:
-    that:
-      - "{{ item }} is defined"
-      - "{{ item }} | length > 0"
-      - "{{ item }} != None"
-    fail_msg: "{{ item }} needs to be set for the role to work"
-    success_msg: "Required variable {{ item }} is defined"
-  changed_when: false
-  diff: false
-  loop:
-    - nftables
-    - nftables_dir
-    - nft_script_folder
-    - nft_loaded_variables
+- name: Check that required passed variables are defined
+  include_tasks: assert_vars.yaml
+  tags:
+    - nftables_setup
+    - nftables_update
+    - nftables_install
 
 - name: Include rules from rules file
   include_vars:
     file: vars/rules.yaml
   when: not nft_rules
+  tags:
+    - nftables_setup
+    - nftables_update
+    - nftables_install
 
 - name: Include variables from variables file
   include_vars:
     file: vars/variables.yaml
   when: not nft_variables
+  tags:
+    - nftables_setup
+    - nftables_update
+    - nftables_install
 
-- name: Verify that all rules are defined
-  assert:
-    that:
-      - "nft_rules.{{ item }} is defined"
-      - "nft_rules.{{ item }} | length > 0"
-      - "nft_rules.{{ item }} != None"
-    fail_msg: "{{ item }} needs to be set for the role to work"
-    success_msg: "Required variable {{ item }} is defined"
-  changed_when: false
-  diff: false
-  loop: "{{ nftables | get_rule_names }}"
+- name: Assert rules are properly defined
+  include_tasks:
+    file: assert_rules.yaml
+    apply:
+      tags:
+        - nftables_setup
+        - nftables_update
+        - nftables_install
 
-- name: Verify that all required variables are defined
-  assert:
-    that:
-      - "nft_variables.{{ item }} is defined"
-      - "nft_variables.{{ item }} | length > 0"
-      - "nft_variables.{{ item }} != None"
-    fail_msg: "{{ item }} needs to be set for the role to work"
-    success_msg: "Required variable {{ item }} is defined"
-  changed_when: no
-  loop: "{{ nft_loaded_variables }}"
-
-- name: install nftables and requirements for this role
+- name: Install nftables and requirements for this role
   package:
     name:
       - nftables
@@ -56,24 +41,34 @@
       - pip
     state: present
   become: true
+  tags:
+    - nftables_install
 
-- name: ensure firewall directory exists
+- name: Ensure firewall directory exists
   file:
     path: "{{ nftables_dir }}"
     state: directory
     mode: u=rwx,g=rx,o=rx
   become: true
+  tags:
+    - nftables_setup
 
-- name: list nft tables
+- name: List nft tables
   command: nft list tables
   become: true
   check_mode: false
   changed_when: false
   register: current_nft_tables
+  tags:
+    - nftables_setup
+    - nftables_update
 
 - name: Grab current nfttable names from output
   set_fact:
     nft_table_names: "{{ current_nft_tables.stdout_lines | map('regex_replace','^table\ ','') }}"
+  tags:
+    - nftables_setup
+    - nftables_update
 
 - name: Create tables that do not exist in nft (to avoid issues)
   command: "nft add table {{ table }}"
@@ -82,6 +77,8 @@
   loop: "{{ nftables.keys() }}"
   loop_control:
     loop_var: table
+  tags:
+    - nftables_setup
 
 - name: Create dynamic tables that do not exist in nft (to avoid issues)
   command: "nft add table {{ table }}"
@@ -90,6 +87,8 @@
   loop: "{{ dynamic_nftables.keys() | list + ['inet blocklist'] }}"
   loop_control:
     loop_var: table
+  tags:
+    - nftables_setup
 
 - name: Copy variable definitions nft file
   template:
@@ -98,6 +97,9 @@
     validate: /usr/sbin/nft -c -f %s
     mode: u=rw,g=r,o=
   become: true
+  tags:
+    - nftables_update
+  notify: "reload ruleset"
 
 - name: Copy sets definitions nft file
   template:
@@ -106,8 +108,10 @@
     mode: u=rw,g=r,o=
     # no validation will crash because this file is meant to be included in firewall.nft
   become: true
+  tags:
+    - nftables_update
 
-- name: create dynamic tables as empty tables that do not exist in nft to avoid issues
+- name: Copy dynamic tables as empty tables that do not exist in nft to avoid issues
   template:
     src: empty_table.nft.j2
     dest: "{{ nftables_dir }}/{{ table | strip_family }}.nft"
@@ -121,8 +125,11 @@
   loop: "{{ dynamic_nftables.keys() }}"
   loop_control:
     loop_var: table
+  tags:
+    - nftables_update
+  notify: "reload ruleset"
 
-- name: create blocklist as empty table if it does not exist in nft to avoid issues
+- name: Create blocklist as empty table if it does not exist in nft to avoid issues
   template:
     src: blocklist.nft.j2
     dest: "{{ nftables_dir }}/blocklist.nft"
@@ -133,6 +140,9 @@
   become: true
   # when table just got created
   when: not "inet blocklist" in nft_table_names
+  tags:
+    - nftables_setup
+  notify: "reload ruleset"
 
 - name: Copy all template nft files
   template:
@@ -146,6 +156,9 @@
   loop: "{{ nftables.keys() }}"
   loop_control:
     loop_var: table
+  tags:
+    - nftables_update
+  notify: "reload ruleset"
 
 - name: Copy global nftable config file
   template:
@@ -154,8 +167,11 @@
     validate: /usr/sbin/nft -c -f %s
     mode: u=rw,g=r,o=
   become: true
+  tags:
+    - nftables_update
+  notify: "reload ruleset"
 
-- name: move firewall reloading script to lib
+- name: Move firewall reloading script to lib
   template:
     src: reload_firewall.sh.j2
     dest: "{{ nft_script_folder }}/reload_firewall.sh"
@@ -163,12 +179,17 @@
     group: root
     mode: u=rwx,g=rx,o=rx
   become: true
+  tags:
+    - nftables_setup
 
-- name: reload nft ruleset
+- name: Reload nft ruleset
   command: "{{ nft_script_folder }}/reload_firewall.sh"
   become: true
+  tags:
+    - nftables_setup
+    - nftables_update
 
-- name: create nftables systemd directory
+- name: Create nftables systemd directory
   file:
     dest: /etc/systemd/system/nftables.service.d
     state: directory
@@ -176,30 +197,44 @@
     group: root
     mode: u=rwx,g=rx,o=rx
   become: true
+  tags:
+    - nftables_setup
 
-- name: copy nftables service file to edit it
+- name: Copy nftables service file to edit it
   command: cp /lib/systemd/system/nftables.service /etc/systemd/system/nftables.service.d/override.conf
   become: true
   when: not ansible_check_mode
+  tags:
+    - nftables_setup
 
-- name: edit nftables service to point to our main nftables file
+- name: Edit nftables service to point to our main nftables file
   replace:
     path: /etc/systemd/system/nftables.service.d/override.conf
     regexp: \/etc\/nftables\.conf
-    replace: '/etc/nftables/nftables.nft'
+    replace: "/etc/nftables/nftables.nft"
   become: true
   when: not ansible_check_mode
+  tags:
+    - nftables_setup
 
-- name: enable nftables service
+- name: Enable nftables service
   service:
     name: nftables
     state: started
-    enabled: yes
+    enabled: true
   when: enable_nftable_service
   become: true
+  tags:
+    - nftables_setup
+    - nftables_update
+    - nftables_install
 
-- name: create abuseip_db based blocklist
-  include_tasks: abuseip_blocklist.yaml
+- name: Create abuseip_db based blocklist
+  include_tasks:
+    file: abuseip_blocklist.yaml
+    apply:
+      tags:
+        - nftables_setup
   when: abuseip_api_key is defined
 
 - name: Uninstall iptables if present
@@ -208,4 +243,5 @@
     state: absent
   become: true
   when: uninstall_iptables
-
+  tags:
+    - nftables_install
