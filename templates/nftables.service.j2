@@ -5,6 +5,7 @@ Wants=network-pre.target
 Before=network-pre.target shutdown.target
 Conflicts=shutdown.target
 DefaultDependencies=no
+OnFailure=failmail@%N.service
 
 [Service]
 Type=oneshot

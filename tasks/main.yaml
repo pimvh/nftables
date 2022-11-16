@@ -184,6 +184,7 @@
 
 - name: Reload nft ruleset
   command: "{{ nft_script_folder }}/reload_firewall.sh"
+  changed_when: true
   become: true
   tags:
     - nftables_setup
@@ -200,20 +201,15 @@
   tags:
     - nftables_setup
 
-- name: Copy nftables service file to edit it
-  command: cp /lib/systemd/system/nftables.service /etc/systemd/system/nftables.service.d/override.conf
-  become: true
-  when: not ansible_check_mode
-  tags:
-    - nftables_setup
-
 - name: Edit nftables service to point to our main nftables file
-  replace:
-    path: /etc/systemd/system/nftables.service.d/override.conf
-    regexp: \/etc\/nftables\.conf
-    replace: "/etc/nftables/nftables.nft"
-  become: true
+  template:
+    src: nftables.service.j2
+    dst: /etc/systemd/system/nftables.service.d/override.conf
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
   when: not ansible_check_mode
+  become: true
   tags:
     - nftables_setup
 

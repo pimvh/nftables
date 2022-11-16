@@ -17,4 +17,4 @@ galaxy_info:
     - nftables
 
 dependencies:
-  - role: pimvh.systemd-failmail
+  - role: pimvh.systemd_failmail
