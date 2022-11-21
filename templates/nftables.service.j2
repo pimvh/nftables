@@ -13,8 +13,8 @@ RemainAfterExit=yes
 StandardInput=null
 ProtectSystem=full
 ProtectHome=true
-ExecStart=/usr/sbin/nft -f /etc/nftables.conf
-ExecReload=/usr/sbin/nft -f /etc/nftables.conf
+ExecStart=/usr/sbin/nft -f /etc/nftables/nftables.nft
+ExecReload=/usr/sbin/nft -f /etc/nftables/nftables.nft
 ExecStop=/usr/sbin/nft flush ruleset
 
 [Install]

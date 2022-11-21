@@ -65,7 +65,7 @@
 
 - name: Grab current nfttable names from output
   set_fact:
-    nft_table_names: "{{ current_nft_tables.stdout_lines | map('regex_replace','^table\ ','') }}"
+    nft_table_names: "{{ current_nft_tables.stdout_lines | map('regex_replace', '^table\ ', '') }}"
   tags:
     - nftables_setup
     - nftables_update
@@ -204,7 +204,7 @@
 - name: Edit nftables service to point to our main nftables file
   template:
     src: nftables.service.j2
-    dst: /etc/systemd/system/nftables.service.d/override.conf
+    dest: /etc/systemd/system/nftables.service.d/override.conf
     owner: root
     group: root
     mode: u=rwx,g=rx,o=rx

@@ -16,7 +16,7 @@ include "{{ nftables_dir }}/defines.nft"
 include "{{ nftables_dir }}/{{ table | strip_family }}.nft"
 
 {% endfor %}
-# ipv4/ipv6 blocklist of bad reputation IPs 
+# ipv4/ipv6 blocklist of bad reputation IPs
 include "{{ nftables_dir}}/blocklist.nft"
 
 # Dynamic tables
@@ -24,7 +24,7 @@ include "{{ nftables_dir}}/blocklist.nft"
 {%- if contents.desc is defined %}
 # {{ contents.desc }}
 {% endif %}
-include "{{ nftables_dir }}/{{ table | strip_family }}.nft"
+include "{{ nftables_dir }}/{{ table | split(' ') | join('_') }}.nft"
 
 {% endfor %}
 
