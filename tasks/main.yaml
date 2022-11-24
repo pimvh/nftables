@@ -207,7 +207,7 @@
     dest: /etc/systemd/system/nftables.service.d/override.conf
     owner: root
     group: root
-    mode: u=rwx,g=rx,o=rx
+    mode: u=rw,g=r,o=r
   when: not ansible_check_mode
   become: true
   tags:
