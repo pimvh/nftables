@@ -1,5 +1,7 @@
+{{ ansible_managed | comment }}
+
 [Unit]
-Description=Run update-abuseip-blocklist daily at 12:00
+Description=Run update-abuseip-blocklist daily at 5 minutes past midnight
 Requires=update-abuseip-blocklist.service
 OnFailure=failmail@%N.service
 
