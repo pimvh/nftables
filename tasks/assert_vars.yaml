@@ -1,6 +1,6 @@
 ---
 - name: Verify that required variables are defined
-  assert:
+  ansible.builtin.assert:
     that:
       - "{{ item }} is defined"
       - "{{ item }} | length > 0"

@@ -1,13 +1,14 @@
 ---
 - name: Check that required passed variables are defined
-  include_tasks: assert_vars.yaml
+  ansible.builtin.include_tasks:
+    file: assert_vars.yaml
   tags:
     - nftables_setup
     - nftables_update
     - nftables_install
 
 - name: Include rules from rules file
-  include_vars:
+  ansible.builtin.include_vars:
     file: vars/rules.yaml
   when: not nft_rules
   tags:
@@ -16,7 +17,7 @@
     - nftables_install
 
 - name: Include variables from variables file
-  include_vars:
+  ansible.builtin.include_vars:
     file: vars/variables.yaml
   when: not nft_variables
   tags:
@@ -25,7 +26,7 @@
     - nftables_install
 
 - name: Assert rules are properly defined
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: assert_rules.yaml
     apply:
       tags:
@@ -34,7 +35,7 @@
         - nftables_install
 
 - name: Install nftables and requirements for this role
-  package:
+  ansible.builtin.package:
     name:
       - nftables
       - python3-nftables
@@ -45,7 +46,7 @@
     - nftables_install
 
 - name: Ensure firewall directory exists
-  file:
+  ansible.builtin.file:
     path: "{{ nftables_dir }}"
     state: directory
     mode: u=rwx,g=rx,o=rx
@@ -54,7 +55,7 @@
     - nftables_setup
 
 - name: List nft tables
-  command: nft list tables
+  ansible.builtin.command: nft list tables
   become: true
   check_mode: false
   changed_when: false
@@ -64,14 +65,15 @@
     - nftables_update
 
 - name: Grab current nfttable names from output
-  set_fact:
-    nft_table_names: "{{ current_nft_tables.stdout_lines | map('regex_replace', '^table\ ', '') }}"
+  ansible.builtin.set_fact:
+    nft_table_names: "{{ current_nft_tables.stdout_lines | map('regex_replace', '^table
+      ', '') }}"
   tags:
     - nftables_setup
     - nftables_update
 
 - name: Create tables that do not exist in nft (to avoid issues)
-  command: "nft add table {{ table }}"
+  ansible.builtin.command: "nft add table {{ table }}"
   become: true
   when: not table in nft_table_names
   loop: "{{ nftables.keys() }}"
@@ -81,7 +83,7 @@
     - nftables_setup
 
 - name: Create dynamic tables that do not exist in nft (to avoid issues)
-  command: "nft add table {{ table }}"
+  ansible.builtin.command: "nft add table {{ table }}"
   become: true
   when: not table in nft_table_names
   loop: "{{ dynamic_nftables.keys() | list + ['inet blocklist'] }}"
@@ -91,7 +93,7 @@
     - nftables_setup
 
 - name: Copy variable definitions nft file
-  template:
+  ansible.builtin.template:
     src: defines.nft.j2
     dest: "{{ nftables_dir }}/defines.nft"
     validate: /usr/sbin/nft -c -f %s
@@ -102,7 +104,7 @@
   notify: "reload ruleset"
 
 - name: Copy sets definitions nft file
-  template:
+  ansible.builtin.template:
     src: filter_sets.nft.j2
     dest: "{{ nftables_dir }}/filter_sets.nft"
     mode: u=rw,g=r,o=
@@ -112,7 +114,7 @@
     - nftables_update
 
 - name: Copy dynamic tables as empty tables that do not exist in nft to avoid issues
-  template:
+  ansible.builtin.template:
     src: empty_table.nft.j2
     dest: "{{ nftables_dir }}/{{ table | strip_family }}.nft"
     mode: u=rw,g=r,o=
@@ -130,7 +132,7 @@
   notify: "reload ruleset"
 
 - name: Create blocklist as empty table if it does not exist in nft to avoid issues
-  template:
+  ansible.builtin.template:
     src: blocklist.nft.j2
     dest: "{{ nftables_dir }}/blocklist.nft"
     mode: u=rw,g=r,o=
@@ -145,7 +147,7 @@
   notify: "reload ruleset"
 
 - name: Copy all template nft files
-  template:
+  ansible.builtin.template:
     src: "table.nft.j2"
     dest: "{{ nftables_dir }}/{{ table | strip_family }}.nft"
     mode: u=rw,g=r,o=
@@ -161,7 +163,7 @@
   notify: "reload ruleset"
 
 - name: Copy global nftable config file
-  template:
+  ansible.builtin.template:
     src: nftables.nft.j2
     dest: "{{ nftables_dir }}/nftables.nft"
     validate: /usr/sbin/nft -c -f %s
@@ -172,7 +174,7 @@
   notify: "reload ruleset"
 
 - name: Move firewall reloading script to lib
-  template:
+  ansible.builtin.template:
     src: reload_firewall.sh.j2
     dest: "{{ nft_script_folder }}/reload_firewall.sh"
     owner: root
@@ -183,7 +185,7 @@
     - nftables_setup
 
 - name: Reload nft ruleset
-  command: "{{ nft_script_folder }}/reload_firewall.sh"
+  ansible.builtin.command: "{{ nft_script_folder }}/reload_firewall.sh"
   changed_when: true
   become: true
   tags:
@@ -191,7 +193,7 @@
     - nftables_update
 
 - name: Create nftables systemd directory
-  file:
+  ansible.builtin.file:
     dest: /etc/systemd/system/nftables.service.d
     state: directory
     owner: root
@@ -202,7 +204,7 @@
     - nftables_setup
 
 - name: Edit nftables service to point to our main nftables file
-  template:
+  ansible.builtin.template:
     src: nftables.service.j2
     dest: /etc/systemd/system/nftables.service.d/override.conf
     owner: root
@@ -214,7 +216,7 @@
     - nftables_setup
 
 - name: Enable nftables service
-  service:
+  ansible.builtin.service:
     name: nftables
     state: started
     enabled: true
@@ -226,7 +228,7 @@
     - nftables_install
 
 - name: Create abuseip_db based blocklist
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: abuseip_blocklist.yaml
     apply:
       tags:
@@ -234,7 +236,7 @@
   when: abuseip_api_key is defined
 
 - name: Uninstall iptables if present
-  package:
+  ansible.builtin.package:
     name: iptables
     state: absent
   become: true

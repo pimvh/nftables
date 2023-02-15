@@ -1,24 +1,24 @@
 ---
 - name: install packages for managing abuse_ip blocklist with python
-  pip:
+  ansible.builtin.pip:
     name:
       - jinja2
       - requests
 
 - name: move python script to lib
-  template:
+  ansible.builtin.ansible.builtin.template:
     src: manage_nft_abuseip_blocklist.py.j2
     dest: "{{ nft_script_folder }}/manage_nft_abuseip_blocklist.py"
     owner: root
     group: root
     mode: u=rwx,g=rx,o=x
-  become: yes
+  become: true
   when: abuseip_api_key is defined
 
 - name: Make systemd services for update-abuseip-blocklist
   block:
     - name: Move update-abuseip-blocklist systemd timer file to host
-      template:
+      ansible.builtin.template:
         src: update-abuseip-blocklist.timer.j2
         dest: "/lib/systemd/system/update-abuseip-blocklist.timer"
         # validate: "systemd-analyze verify %s"
@@ -28,7 +28,7 @@
       become: true
 
     - name: Move update-abuseip-blocklist systemd service file to host
-      template:
+      ansible.builtin.template:
         src: update-abuseip-blocklist.service.j2
         dest: "/lib/systemd/system/update-abuseip-blocklist.service"
         # validate: "systemd-analyze verify %s"
@@ -38,21 +38,21 @@
       become: true
 
     - name: Validate update-abuseip-blocklist.service
-      command: systemd-analyze verify update-abuseip-blocklist.service
+      ansible.builtin.command: systemd-analyze verify update-abuseip-blocklist.service
       args:
         chdir: "/lib/systemd"
       changed_when: false
       become: true
 
     - name: Validate update-abuseip-blocklist.timer
-      command: systemd-analyze verify update-abuseip-blocklist.timer
+      ansible.builtin.command: systemd-analyze verify update-abuseip-blocklist.timer
       args:
         chdir: "/lib/systemd"
       changed_when: false
       become: true
 
     - name: Enable update-abuseip-blocklist timer
-      service:
+      ansible.builtin.service:
         name: update-abuseip-blocklist.timer
         state: started
         enabled: true

@@ -1,6 +1,6 @@
 ---
 - name: Verify that all rules are defined
-  assert:
+  ansible.builtin.assert:
     that:
       - "nft_rules.{{ item }} is defined"
       - "nft_rules.{{ item }} | length > 0"
@@ -14,7 +14,7 @@
   loop: "{{ nftables | get_rule_names }}"
 
 - name: Verify that all required rule variables are defined
-  assert:
+  ansible.builtin.assert:
     that:
       - "nft_variables.{{ item }} is defined"
       - "nft_variables.{{ item }} | length > 0"
