@@ -6,7 +6,7 @@
       - requests
 
 - name: move python script to lib
-  ansible.builtin.ansible.builtin.template:
+  ansible.builtin.template:
     src: manage_nft_abuseip_blocklist.py.j2
     dest: "{{ nft_script_folder }}/manage_nft_abuseip_blocklist.py"
     owner: root
