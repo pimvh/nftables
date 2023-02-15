@@ -24,6 +24,8 @@ nft_loaded_variables:
   - tcp_ports
   - udp_ports
 
+nft_sets: "# no sets"
+
 # rules put into chains
 nftables:
   "inet firewall":
