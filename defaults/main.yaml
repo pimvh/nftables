@@ -7,20 +7,19 @@ enable_nftable_service: false
 email: ""
 abuseip_api_key: ""
 
-open_tcp_ports:
-  global:
-    - ssh
-  local: []
+open_tcp_ports_global:
+  - ssh
+open_tcp_ports_local: []
+open_tcp_ports_vpn: []
 
-open_udp_ports:
-  global: []
-  local: []
+open_udp_ports_global: []
+open_udp_ports_local: []
+open_udp_ports_vpn: []
 
 nft_loaded_variables:
   - header
   - interface
   - local_network
-  - local
   - tcp_ports
   - udp_ports
 
@@ -41,4 +40,4 @@ nftables:
         - globally_allowed_tcp
         - globally_allowed_udp
 
-dynamic_nftables: []
+dynamic_nftables: {}

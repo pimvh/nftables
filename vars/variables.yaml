@@ -1,20 +1,25 @@
+---
 nft_variables:
   header:
     note: this is a simple firewall, for ipv4 and ipv6
-    def: ""
+    def: "# built by me :)"
 
   tcp_ports:
     note: tcp ports configuration
-    def: '{% if open_tcp_ports.global %} define OPEN_TCP_PORTS = { {{ open_tcp_ports.global | join(",") }} }{% endif %}
-      {% if open_tcp_ports.local %} define LOCAL_OPEN_TCP_PORTS =  { {{ open_tcp_ports.local | join(",") }} }{% endif %}'
+    def: |
+      {% if open_tcp_ports_global %}define OPEN_TCP_PORTS = { {{ open_tcp_ports_global | join(",") }} }{% endif +%}
+      {% if open_tcp_ports_local %}define LOCAL_OPEN_TCP_PORTS = { {{ open_tcp_ports_local | join(",") }} }{% endif +%}
+      {% if open_tcp_ports_vpn %}define VPN_TCP_PORTS = { {{ open_tcp_ports_vpn | join(",") }} }{% endif +%}
 
   udp_ports:
     note: udp ports configuration
-    def: '{% if open_udp_ports.global %} define OPEN_UDP_PORTS = { {{ open_udp_ports.global | join(",") }} }{%endif %}
-      {% if open_udp_ports.local %} define LOCAL_OPEN_UDP_PORTS =  { {{ open_udp_ports.local | join(",") }} }{% endif %}'
+    def: |
+      {% if open_udp_ports_global %}define OPEN_UDP_PORTS = { {{ open_udp_ports_global | join(",") }} }{%endif +%}
+      {% if open_udp_ports_local %}define LOCAL_OPEN_UDP_PORTS = { {{ open_udp_ports_local | join(",") }} }{% endif +%}
+      {% if open_udp_ports_vpn  %}define VPN_UDP_PORTS = { {{ open_udp_ports_vpn | join(",") }} }{% endif +%}
 
   local_network:
-    note: local ranges in ipv4/ipv6 of OS3
+    note: local ranges in ipv4/ipv6
     def: |
       define LOCAL_IPV4_RANGE = { {{ local_range_ipv4 }} }
       define LOCAL_IPV6_RANGE = { {{ local_range_ipv6 }} }

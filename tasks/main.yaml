@@ -101,37 +101,33 @@
   become: true
   tags:
     - nftables_update
-  notify: "reload ruleset"
+  notify: reload ruleset
 
 - name: Copy sets definitions nft file
   ansible.builtin.template:
     src: filter_sets.nft.j2
     dest: "{{ nftables_dir }}/filter_sets.nft"
     mode: u=rw,g=r,o=
-    # no validation will crash because this file is meant to be included in firewall.nft
+    # validation will crash because
+    # this file is meant to be included in firewall.nft
   become: true
   tags:
     - nftables_update
 
-- name: Copy dynamic tables as empty tables that do not exist in nft to avoid issues
-  ansible.builtin.template:
-    src: empty_table.nft.j2
-    dest: "{{ nftables_dir }}/{{ table | split(' ') | join('_') }}.nft"
-    mode: u=rw,g=r,o=
-  # crashes on validation due to dependencies,
-  # gets validated as a whole when global file is pushed
-  # validate: /usr/sbin/nft -c -f %s
-  become: true
-  # when table just got created
-  when: not table in nft_table_names
+- name: Check which dynamic table files do not exist yet and create them if necessary
+  ansible.builtin.include_tasks:
+    file: create_dynamic_tables.yaml
+    apply:
+      tags:
+        - nftables_update
   loop: "{{ dynamic_nftables.keys() }}"
   loop_control:
     loop_var: table
   tags:
     - nftables_update
-  notify: "reload ruleset"
+  when: dynamic_nftables
 
-- name: Create blocklist as empty table if it does not exist in nft to avoid issues
+- name: Create blocklist as empty table if it does not exist in nft
   ansible.builtin.template:
     src: blocklist.nft.j2
     dest: "{{ nftables_dir }}/blocklist.nft"
@@ -144,7 +140,7 @@
   when: not "inet blocklist" in nft_table_names
   tags:
     - nftables_setup
-  notify: "reload ruleset"
+  notify: reload ruleset
 
 - name: Copy all template nft files
   ansible.builtin.template:
@@ -160,7 +156,7 @@
     loop_var: table
   tags:
     - nftables_update
-  notify: "reload ruleset"
+  notify: reload ruleset
 
 - name: Copy global nftable config file
   ansible.builtin.template:
@@ -171,7 +167,7 @@
   become: true
   tags:
     - nftables_update
-  notify: "reload ruleset"
+  notify: reload ruleset
 
 - name: Move firewall reloading script to lib
   ansible.builtin.template:
@@ -183,14 +179,6 @@
   become: true
   tags:
     - nftables_setup
-
-- name: Reload nft ruleset
-  ansible.builtin.command: "{{ nft_script_folder }}/reload_firewall.sh"
-  changed_when: true
-  become: true
-  tags:
-    - nftables_setup
-    - nftables_update
 
 - name: Create nftables systemd directory
   ansible.builtin.file:
@@ -215,25 +203,13 @@
   tags:
     - nftables_setup
 
-- name: Enable nftables service
-  ansible.builtin.service:
-    name: nftables
-    state: started
-    enabled: true
-  when: enable_nftable_service
-  become: true
-  tags:
-    - nftables_setup
-    - nftables_update
-    - nftables_install
-
 - name: Create abuseip_db based blocklist
   ansible.builtin.include_tasks:
     file: abuseip_blocklist.yaml
     apply:
       tags:
         - nftables_setup
-  when: abuseip_api_key is defined
+  when: abuseip_api_key
 
 - name: Uninstall iptables if present
   ansible.builtin.package:

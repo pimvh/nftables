@@ -1,4 +1,13 @@
+---
 - name: reload nft ruleset
-  command: "{{ nft_script_folder }}/reload_firewall.sh"
+  ansible.builtin.command: "{{ nft_script_folder }}/reload_firewall.sh"
   become: true
-  listen: "reload ruleset"
+  listen: reload ruleset
+
+- name: Enable nftables service
+  ansible.builtin.systemd:
+    name: nftables
+    state: started
+    enabled: true
+  when: enable_nftable_service
+  become: true
