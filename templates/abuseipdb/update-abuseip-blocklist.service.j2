@@ -5,7 +5,7 @@ Description=Runs blocklist manage script
 Wants=update-abuseip-blocklist.timer
 
 [Service]
-ExecStart={{ nft_script_folder }}/manage_nft_abuseip_blocklist.py
+ExecStart={{ nftables_script_folder }}/manage_nft_abuseip_blocklist.py
 
 [Install]
 WantedBy=multi-user.target

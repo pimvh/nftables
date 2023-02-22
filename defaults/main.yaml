@@ -1,32 +1,31 @@
 ---
 nftables_dir: /etc/nftables
-nft_script_folder: /usr/local/bin
-uninstall_iptables: false
-enable_filter_sets: true
-enable_nftable_service: false
-email: ""
+nftables_script_folder: /usr/local/bin
+nftables_uninstall_iptables: false
+nftables_enable_filter_sets: true
+nftables_enable_service: false
 abuseip_api_key: ""
 
-open_tcp_ports_global:
+nftables_open_tcp_ports_global:
   - ssh
-open_tcp_ports_local: []
-open_tcp_ports_vpn: []
+nftables_open_tcp_ports_local: []
+nftables_open_tcp_ports_vpn: []
 
-open_udp_ports_global: []
-open_udp_ports_local: []
-open_udp_ports_vpn: []
+nftables_open_udp_ports_global: []
+nftables_open_udp_ports_local: []
+nftables_open_udp_ports_vpn: []
 
-nft_loaded_variables:
+nftables_loaded_variables:
   - header
   - interface
   - local_network
   - tcp_ports
   - udp_ports
 
-nft_sets: "# no sets"
+nftables_sets: "# no sets"
 
 # rules put into chains
-nftables:
+nftables_ruleset:
   "inet firewall":
     desc: "firewall of device"
     chains:
@@ -40,4 +39,4 @@ nftables:
         - globally_allowed_tcp
         - globally_allowed_udp
 
-dynamic_nftables: {}
+nftables_dynamic_tables: {}

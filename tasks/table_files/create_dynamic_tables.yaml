@@ -6,12 +6,11 @@
 
 - name: Copy dynamic tables as empty tables that do not exist in nft issues
   ansible.builtin.template:
-    src: empty_table.nft.j2
+    src: tables/empty.nft.j2
     dest: "{{ nftables_dir }}/{{ table | split(' ') | join('_') }}.nft"
     mode: u=rw,g=r,o=
   # crashes on validation due to dependencies,
   # gets validated as a whole when global file is pushed
   # validate: /usr/sbin/nft -c -f %s
   become: true
-  notify: "reload ruleset"
   when: not _dynamic_table.stat.exists

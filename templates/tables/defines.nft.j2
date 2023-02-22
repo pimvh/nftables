@@ -1,0 +1,9 @@
+#!/usr/sbin/nft -f
+{{ ansible_managed | comment }}
+
+# Defined variables
+{% for variable in nftables_loaded_variables %}
+# {{ nftables_variables[variable].note }}
+{{ nftables_variables[variable].def }}
+
+{% endfor %}

@@ -2,7 +2,7 @@
 # some rules were inspired on:
 # https://github.com/yoramvandevelde/nftables-example/blob/master/nftables-init.rules
 # define rules here
-nft_rules:
+nftables_rules:
   input_hook: >
     type filter hook input priority 0; policy drop;
   valid_connections: |

@@ -7,8 +7,8 @@
 
 - name: move python script to lib
   ansible.builtin.template:
-    src: manage_nft_abuseip_blocklist.py.j2
-    dest: "{{ nft_script_folder }}/manage_nft_abuseip_blocklist.py"
+    src: abuseipdb/manage_nft_abuseip_blocklist.py.j2
+    dest: "{{ nftables_script_folder }}/manage_nft_abuseip_blocklist.py"
     owner: root
     group: root
     mode: u=rwx,g=rx,o=x
@@ -19,7 +19,7 @@
   block:
     - name: Move update-abuseip-blocklist systemd timer file to host
       ansible.builtin.template:
-        src: update-abuseip-blocklist.timer.j2
+        src: abuseipdb/update-abuseip-blocklist.timer.j2
         dest: "/lib/systemd/system/update-abuseip-blocklist.timer"
         # validate: "systemd-analyze verify %s"
         owner: root
@@ -29,7 +29,7 @@
 
     - name: Move update-abuseip-blocklist systemd service file to host
       ansible.builtin.template:
-        src: update-abuseip-blocklist.service.j2
+        src: abuseipdb/update-abuseip-blocklist.service.j2
         dest: "/lib/systemd/system/update-abuseip-blocklist.service"
         # validate: "systemd-analyze verify %s"
         owner: root

@@ -12,7 +12,7 @@
   delegate_to: localhost
   run_once: true
   loop:
-    - nftables
+    - nftables_ruleset
     - nftables_dir
-    - nft_script_folder
-    - nft_loaded_variables
+    - nftables_script_folder
+    - nftables_loaded_variables

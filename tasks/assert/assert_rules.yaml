@@ -2,27 +2,27 @@
 - name: Verify that all rules are defined
   ansible.builtin.assert:
     that:
-      - "nft_rules.{{ item }} is defined"
-      - "nft_rules.{{ item }} | length > 0"
-      - "nft_rules.{{ item }} != None"
+      - "nftables_rules.{{ item }} is defined"
+      - "nftables_rules.{{ item }} | length > 0"
+      - "nftables_rules.{{ item }} != None"
     fail_msg: "{{ item }} needs to be set for the role to work"
     success_msg: "Required variable {{ item }} is defined"
   changed_when: false
   diff: false
   delegate_to: localhost
   run_once: true
-  loop: "{{ nftables | get_rule_names }}"
+  loop: "{{ nftables_ruleset | get_rule_names }}"
 
 - name: Verify that all required rule variables are defined
   ansible.builtin.assert:
     that:
-      - "nft_variables.{{ item }} is defined"
-      - "nft_variables.{{ item }} | length > 0"
-      - "nft_variables.{{ item }} != None"
+      - "nftables_variables.{{ item }} is defined"
+      - "nftables_variables.{{ item }} | length > 0"
+      - "nftables_variables.{{ item }} != None"
     fail_msg: "{{ item }} needs to be set for the role to work"
     success_msg: "Required variable {{ item }} is defined"
   changed_when: false
   delegate_to: localhost
   run_once: true
   diff: false
-  loop: "{{ nft_loaded_variables }}"
+  loop: "{{ nftables_loaded_variables }}"

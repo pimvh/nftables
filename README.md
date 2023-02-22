@@ -17,7 +17,7 @@ Review the variables as shown in defaults.
 2. Add a firewall definition to the variables for your host (../host_vars/[host_name].yaml), group of hosts (../group_vars/[group_name].yaml) or to defaults/main.yaml, using the following structure:
 
 ```
-nftables:
+nftables_ruleset:
 
   # firewall family and name"
   "inet firewall":
@@ -29,7 +29,7 @@ nftables:
 
       # name of the respective chain
       input:
-        # name of the variable from nft_rules
+        # name of the variable from nftables_rules
         # that you would like to put in this chain
         - input_hook
         - valid_connections
@@ -62,6 +62,10 @@ roles:
 - copy a nftables template to nftables directory
 - edit nftables service to point to our new main file
 - create script to reload firewall, which dumps tables outside of our control to files, and reloads the firewall after
-- when abuseip_api_key is defined, add a script to pull the blocklist using their api, and make that a cronjob
+- when abuseip_api_key is defined, add a script to pull the blocklist using their api, and make that a systemd service
 - enable nftable service when requested
 - uninstall iptables when requested
+
+# Future Improvements
+
+- Simply structure of rules that needs to be passed
