@@ -39,7 +39,7 @@
 
 - name: Create blocklist as empty table if it does not exist in nft
   ansible.builtin.template:
-    src: blocklist.nft.j2
+    src: abuseipdb/blocklist.nft.j2
     dest: "{{ nftables_dir }}/blocklist.nft"
     mode: u=rw,g=r,o=
   # crashes on validation due to dependencies,
