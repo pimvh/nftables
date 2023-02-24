@@ -4,7 +4,7 @@
   become: true
   listen: reload nftables ruleset
 
-- name: start nftables service
+- name: Start nftables service
   ansible.builtin.systemd:
     name: nftables
     state: started
@@ -12,8 +12,9 @@
   become: true
   listen: start nftables service
 
-- name: enable nftables service
+- name: Enable nftables service
   ansible.builtin.systemd:
+    name: nftables
     daemon_reload: true
     enabled: true
   when: nftables_enable_service
