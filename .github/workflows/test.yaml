@@ -1,0 +1,63 @@
+---
+# terraform managed
+# Inspired on robertdebock (https://github.com/robertdebock) and erissysmin (https://github.com/erissysmin)
+
+name: Ansible Molecule
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '7 4 4 * *'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yamllint ansible-lint
+
+      - name: lint
+        run: ansible-lint
+
+  molecule:
+    needs:
+      - lint
+    runs-on: ubuntu-latest
+    env:
+      # allows molecule colors to be passed to GitHub Actions
+      PY_COLORS: 1
+      # allows ansible colors to be passed to GitHub Actions
+      ANSIBLE_FORCE_COLOR: 1
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          sudo apt install apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+          python -m pip install --upgrade pip
+          pip3 install ansible molecule[docker] yamllint ansible-lint pytest-testinfra
+
+      - name: Run role tests
+        run: |
+          molecule --version
+          ansible --version
+          molecule --debug test
