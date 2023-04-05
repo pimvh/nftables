@@ -1,0 +1,27 @@
+---
+# terraform managed
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
+platforms:
+  - name: Ubuntu
+    image: ubuntu:jammy
+    cmd: /lib/systemd/systemd
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+provisioner:
+  name: ansible
+  host_vars:
+  instance:
+    ansible_user: ansible
+verifier:
+  name: testinfra
