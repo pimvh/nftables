@@ -29,15 +29,21 @@ ENV container docker
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Do specific actions per type of distribution
-# For example for Ubuntu, generate a locate
-# in addition to install a number of packages
+# For example for Ubuntu, generate a locate in addition to install a number of packages
 RUN if [ $(command -v apt-get) ]; then \
     apt-get update && \
     apt-get install -y locales && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
     apt-get install --no-install-recommends -y python3 sudo bash ca-certificates iproute2 python3-apt aptitude systemd systemd-sysv && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*; \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ; \
+    rm -rf /lib/systemd/system/multi-user.target.wants/* ; \
+    rm -rf /etc/systemd/system/*.wants/* ; \
+    rm -rf /lib/systemd/system/local-fs.target.wants/* ; \
+    rm -rf /lib/systemd/system/sockets.target.wants/*udev* ; \
+    rm -rf /lib/systemd/system/sockets.target.wants/*initctl* ; \
+    rm -rf /lib/systemd/system/sysinit.target.wants/systemd-tmpfiles-setup* ; \
+    rm -rf /lib/systemd/system/systemd-update-utmp* ;  \
   elif [ $(command -v dnf) ]; then \
     dnf makecache && \
     dnf --assumeyes install /usr/bin/python3 /usr/bin/python3-config /usr/bin/dnf-3 sudo bash iproute && \
