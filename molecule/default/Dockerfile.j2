@@ -33,13 +33,11 @@ RUN apt-get update && \
     apt-get install -y locales && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
     apt-get -y install --no-install-recommends systemd systemd-sysv \
-    sudo procps python3-pip python3-dev python3-setuptools python3-wheel  \
+    sudo procps python3-pip python3-dev python3-setuptools python3-wheel bash \
     # Clean up
     && rm -rf /var/lib/apt/lists/* \
     && rm -Rf /usr/share/doc && rm -Rf /usr/share/man \
     && apt-get clean -y
-
-# sudo bash ca-certificates iproute2 systemd systemd-sysv && \
 
 # Create a group and a user
 RUN set -xe \
