@@ -25,44 +25,21 @@ ENV LANG en_US.utf8
 ENV LC_ALL C.UTF-8
 
 # non interactive debian
-ENV container docker
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Do specific actions per type of distribution
 # For example for Ubuntu, generate a locate in addition to install a number of packages
-RUN if [ $(command -v apt-get) ]; then \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install -y locales && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
-    apt-get install --no-install-recommends -y python3 sudo bash ca-certificates iproute2 python3-apt aptitude systemd systemd-sysv && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ; \
-    rm -rf /lib/systemd/system/multi-user.target.wants/* ; \
-    rm -rf /etc/systemd/system/*.wants/* ; \
-    rm -rf /lib/systemd/system/local-fs.target.wants/* ; \
-    rm -rf /lib/systemd/system/sockets.target.wants/*udev* ; \
-    rm -rf /lib/systemd/system/sockets.target.wants/*initctl* ; \
-    rm -rf /lib/systemd/system/sysinit.target.wants/systemd-tmpfiles-setup* ; \
-    rm -rf /lib/systemd/system/systemd-update-utmp* ;  \
-  elif [ $(command -v dnf) ]; then \
-    dnf makecache && \
-    dnf --assumeyes install /usr/bin/python3 /usr/bin/python3-config /usr/bin/dnf-3 sudo bash iproute && \
-    dnf clean all; \
-  elif [ $(command -v yum) ]; then \
-    yum makecache fast && \
-    yum install -y /usr/bin/python /usr/bin/python2-config sudo yum-plugin-ovl bash iproute && \
-    sed -i 's/plugins=0/plugins=1/g' /etc/yum.conf && yum clean all; \
-  elif [ $(command -v zypper) ]; then \
-    zypper refresh && \
-    zypper install -y python3 sudo bash iproute2 && zypper clean -a; \
-  elif [ $(command -v apk) ]; then \
-    apk update && \
-    apk add --no-cache python3 sudo bash ca-certificates; \
-  elif [ $(command -v xbps-install) ]; then \
-    xbps-install -Syu && \
-    xbps-install -y python3 sudo bash ca-certificates iproute2 && \
-    xbps-remove -O; \
-  fi
+    apt-get -y install --no-install-recommends systemd systemd-sysv \
+    sudo procps python3-pip python3-dev python3-setuptools python3-wheel  \
+    # Clean up
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -Rf /usr/share/doc && rm -Rf /usr/share/man \
+    && apt-get clean -y
+
+# sudo bash ca-certificates iproute2 systemd systemd-sysv && \
 
 # Create a group and a user
 RUN set -xe \
@@ -73,11 +50,25 @@ RUN set -xe \
   && usermod -aG ${DEPLOY_GROUP} ${ANSIBLE_USER} \
   && sed -i "/^%${SUDO_GROUP}/s/ALL\$/NOPASSWD:ALL/g" /etc/sudoers
 
-# Remove unnecessary getty and udev targets that result in high CPU usage when using
-# multiple containers with Molecule (https://github.com/ansible/molecule/issues/1104)
-RUN rm -f /lib/systemd/system/systemd*udev* \
-  && rm -f /lib/systemd/system/getty.target
+# Avoid apt warnings by switching to noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
-VOLUME ["/sys/fs/cgroup", "/tmp", "/run"]
-CMD ["/lib/systemd/systemd"]
+# Upgrade pip to latest version to avoid wheel / cryptography issues
+RUN pip3 install --upgrade pip
+
+# Install Ansible via pip.
+RUN pip3 install ansible-core ansible-lint cryptography
+
+# Switch back to dialog for any ad-hoc use of apt-get
+ENV DEBIAN_FRONTEND=dialog
+
+RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
+    /etc/systemd/system/*.wants/* \
+    /lib/systemd/system/local-fs.target.wants/* \
+    /lib/systemd/system/sockets.target.wants/*udev* \
+    /lib/systemd/system/sockets.target.wants/*initctl* \
+    /lib/systemd/system/sysinit.target.wants/systemd-tmpfiles-setup* \
+    /lib/systemd/system/systemd-update-utmp*
+
+CMD ["/lib/systemd/systemd", "log-level=info", "unit=sysinit.target"]
 

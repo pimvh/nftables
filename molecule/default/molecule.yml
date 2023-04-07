@@ -2,6 +2,8 @@
 # terraform managed
 dependency:
   name: galaxy
+  options:
+    requirements-file: requirements.yml
 driver:
   name: docker
 lint: |
@@ -11,10 +13,15 @@ lint: |
 platforms:
   - name: Ubuntu
     image: ubuntu:jammy
-    cmd: /sbin/init
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    cmd: /lib/systemd/systemd
+    tmpfs:
+      - /run
+      - /tmp
+    # volumes:
+    #   - /sys/fs/cgroup:/sys/fs/cgroup:rw
     privileged: true
+    pre_build_image: false
+    override_command: false
 provisioner:
   name: ansible
   instance:
