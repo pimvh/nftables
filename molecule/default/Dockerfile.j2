@@ -25,6 +25,7 @@ ENV LANG en_US.utf8
 ENV LC_ALL C.UTF-8
 
 # non interactive debian
+ENV container docker
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Do specific actions per type of distribution
@@ -34,7 +35,7 @@ RUN if [ $(command -v apt-get) ]; then \
     apt-get update && \
     apt-get install -y locales && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
-    apt-get install --no-install-recommends -y python3 sudo bash ca-certificates iproute2 python3-apt aptitude systemd && \
+    apt-get install --no-install-recommends -y python3 sudo bash ca-certificates iproute2 python3-apt aptitude systemd systemd-sysv && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*; \
   elif [ $(command -v dnf) ]; then \
