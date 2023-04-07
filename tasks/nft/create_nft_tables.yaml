@@ -2,6 +2,7 @@
 - name: Create tables that do not exist in nft (to avoid issues)
   ansible.builtin.command: "nft add table {{ table }}"
   become: true
+  changed_when: true
   when: not table in nft_table_names
   loop: "{{ nftables_ruleset.keys() }}"
   loop_control:
@@ -12,6 +13,7 @@
 - name: Create dynamic tables that do not exist in nft (to avoid issues)
   ansible.builtin.command: "nft add table {{ table }}"
   become: true
+  changed_when: true
   when: not table in nft_table_names
   loop: "{{ nftables_dynamic_tables.keys() | list + ['inet blocklist'] }}"
   loop_control:

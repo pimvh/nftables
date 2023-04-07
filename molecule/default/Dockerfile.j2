@@ -24,15 +24,17 @@ ENV SUDO_GROUP={{'sudo' if ('debian' in item.image or 'ubuntu' in item.image) el
 ENV LANG en_US.utf8
 ENV LC_ALL C.UTF-8
 
+# non interactive debian
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Do specific actions per type of distribution
 # For example for Ubuntu, generate a locate
 # in addition to install a number of packages
 RUN if [ $(command -v apt-get) ]; then \
-    export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
     apt-get install -y locales && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
-    apt-get install --no-install-recommends -y python3 sudo bash ca-certificates iproute2 python3-apt aptitude && \
+    apt-get install --no-install-recommends -y python3 sudo bash ca-certificates iproute2 python3-apt aptitude systemd && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*; \
   elif [ $(command -v dnf) ]; then \

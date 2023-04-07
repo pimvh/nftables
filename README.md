@@ -12,9 +12,7 @@ pip3 install ansible
 
 Review the variables as shown in defaults.
 
-1. Review rules.example and variables.example and define your custom rules and required variables for your firewall.
-
-2. Add a firewall definition to the variables for your host (../host_vars/[host_name].yaml), group of hosts (../group_vars/[group_name].yaml) or to defaults/main.yaml, using the following structure:
+You can add a firewall definition to the variables for your host (../host_vars/[host_name].yaml), group of hosts (../group_vars/[group_name].yaml) using the following structure (see molecule.default.vars/test.yaml for an example):
 
 ```
 nftables_ruleset:
@@ -37,12 +35,48 @@ nftables_ruleset:
 
   # another table with the same structure
   "inet foo":
+
+# the rules here ....
+nftables_rules:
+  input_hook: >
+    type filter hook input priority 0; policy drop;
+  valid_connections: |
+    ct state established, related accept
+    ct state invalid drop
+
+  new_connections: |
+    ct state new accept
+  ... (see defaults/main.yaml)
   ...
+
+
+nftables_loaded_variables:
+  - header
+  ... (see defaults/main.yaml)
+
+
+nftables_variables:
+  header:
+    note: this is a simple firewall, for ipv4 and ipv6
+    def: "# built by me :)"
+
+  tcp_ports:
+    note: tcp ports configuration
+    def: |
+      {% if nftables_open_tcp_ports_global %}define OPEN_TCP_PORTS = { {{ nftables_open_tcp_ports_global | join(",") }} }{% endif +%}
+      {% if nftables_open_tcp_ports_local %}define LOCAL_OPEN_TCP_PORTS = { {{ nftables_open_tcp_ports_local | join(",") }} }{% endif +%}
+      {% if nftables_open_tcp_ports_vpn %}define VPN_TCP_PORTS = { {{ nftables_open_tcp_ports_vpn | join(",") }} }{% endif +%}
+
+  ... (see defaults/main.yaml)
+
+
 ```
 
-The ansible playbook will validate whether the variables exist that you defined before running.
+The ansible playbook will validate whether the correct variables are passed to the role using an argument_spec.
 
 # Example playbook
+
+Minimal (assuming you passed variables elsewhere):
 
 ```
 hosts:
@@ -69,3 +103,4 @@ roles:
 # Future Improvements
 
 - Simply structure of rules that needs to be passed
+- Improve argument_specs for `nftables_variables` and `nftables_ruleset`

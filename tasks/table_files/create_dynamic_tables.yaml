@@ -1,5 +1,5 @@
 ---
-- name: Check if dynamic table {{ table }} exists
+- name: Check if dynamic table exists named {{ table }}
   ansible.builtin.stat:
     path: "{{ nftables_dir }}/{{ table | split(' ') | join('_') }}.nft"
   register: _dynamic_table

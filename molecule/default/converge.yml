@@ -6,7 +6,7 @@
   pre_tasks:
     - name: Check if test vars are present
       ansible.builtin.include_vars:
-        file: molecule/default.yaml
+        file: test.yaml
 
   tasks:
     - name: "Include pimvh.nftables"

@@ -13,6 +13,14 @@
   run_once: true
   loop: "{{ nftables_ruleset | get_rule_names }}"
 
+- name: Show
+  ansible.builtin.debug:
+    var: "nftables_rules"
+
+- name: Show
+  ansible.builtin.debug:
+    var: "nftables_loaded_variables"
+
 - name: Verify that all required rule variables are defined
   ansible.builtin.assert:
     that:

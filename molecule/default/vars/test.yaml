@@ -1,0 +1,98 @@
+---
+systemd_failmail_email: "foo@example.com"
+
+nftables_loaded_variables:
+  - header
+  - interface
+  - local_network
+  - tcp_ports
+  - udp_ports
+
+# rules put into chains
+nftables_ruleset:
+  "inet firewall":
+    desc: "firewall of device"
+    chains:
+      input:
+        - input_hook
+        - valid_connections
+        - loopback
+        - drop_tcp_fragments
+        - icmp
+        - icmpv6
+        - globally_allowed_tcp
+
+nftables_dynamic_tables: {}
+
+# some rules were inspired on:
+# https://github.com/yoramvandevelde/nftables-example/blob/master/nftables-init.rules
+nftables_rules:
+  input_hook: >
+    type filter hook input priority 0; policy drop;
+  valid_connections: |
+    ct state established, related accept
+    ct state invalid drop
+
+  new_connections: |
+    ct state new accept
+
+  loopback: |
+    iif != lo ip  daddr 127.0.0.1/8 counter drop comment "drop fake loopback"
+    iif != lo ip6 daddr ::1/128     counter drop
+    meta iifname lo accept
+
+  drop_tcp_fragments: |
+    # Drop all fragments.
+    ip frag-off & 0x1fff != 0 counter drop
+
+  icmp: >-
+    ip protocol icmp icmp type { destination-unreachable, echo-reply, echo-request, time-exceeded } limit rate 10/second burst 2 packets accept
+  icmpv6: >-
+    ip6 nexthdr icmpv6 icmpv6 type { destination-unreachable, echo-reply, echo-request, packet-too-big, parameter-problem, time-exceeded } limit rate 10/second burst 2 packets accept
+  globally_allowed_tcp: |
+    iifname $WAN_IF tcp dport $OPEN_TCP_PORTS ct state new accept
+
+  globally_allowed_udp: |
+    iifname $WAN_IF udp dport $OPEN_UDP_PORTS ct state new accept
+
+  locally_allowed_tcp: |
+    ip  saddr $LOCAL_IPV4_RANGE ip  daddr $ASSIGNED_IPV4_RANGE tcp dport $LOCAL_OPEN_TCP_PORTS accept
+    ip6 saddr $LOCAL_IPV6_RANGE ip6 daddr $ASSIGNED_IPV6_RANGE tcp dport $LOCAL_OPEN_TCP_PORTS accept
+
+nftables_variables:
+  header:
+    note: this is a simple firewall, for ipv4 and ipv6
+    def: "# built by me :)"
+
+  tcp_ports:
+    note: tcp ports configuration
+    def: |
+      {% if nftables_open_tcp_ports_global %}define OPEN_TCP_PORTS = { {{ nftables_open_tcp_ports_global | join(",") }} }{% endif +%}
+      {% if nftables_open_tcp_ports_local %}define LOCAL_OPEN_TCP_PORTS = { {{ nftables_open_tcp_ports_local | join(",") }} }{% endif +%}
+      {% if nftables_open_tcp_ports_vpn %}define VPN_TCP_PORTS = { {{ nftables_open_tcp_ports_vpn | join(",") }} }{% endif +%}
+
+  udp_ports:
+    note: udp ports configuration
+    def: |
+      {% if nftables_open_udp_ports_global %}define OPEN_UDP_PORTS = { {{ nftables_open_udp_ports_global | join(",") }} }{% endif +%}
+      {% if nftables_open_udp_ports_local %}define LOCAL_OPEN_UDP_PORTS = { {{ nftables_open_udp_ports_local | join(",") }} }{% endif +%}
+      {% if nftables_open_udp_ports_vpn %}define VPN_UDP_PORTS = { {{ nftables_open_udp_ports_vpn | join(",") }} }{% endif +%}
+
+  local_network:
+    note: local ranges in ipv4/ipv6
+    def: |
+      define LOCAL_IPV4_RANGE = { 10.0.0.0/8, 127.16.0.1/12, 192.168.0.0/16 }
+      define LOCAL_IPV6_RANGE = { ::1/128 }
+
+  interface:
+    note: define public interface
+    def: |
+      define WAN_IF = "eth0"
+
+nftables_sets: |
+  set denylist4 { type ipv4_addr;
+                  flags dynamic, timeout;
+                  timeout 5m; }
+  set denylist6 { type ipv6_addr;
+                  flags dynamic, timeout;
+                  timeout 5m; }

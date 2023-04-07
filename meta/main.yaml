@@ -5,7 +5,7 @@ galaxy_info:
 
   license: GPL-3.0-only
 
-  min_ansible_version: 2.1
+  min_ansible_version: "2.1"
 
   platforms:
     - name: Ubuntu
@@ -18,6 +18,146 @@ galaxy_info:
   galaxy_tags:
     - firewall
     - nftables
+    - abuseipdb
 
 dependencies:
   - role: pimvh.systemd_failmail
+
+argument_specs:
+  main:
+    short_description: The main entry point for the nftables role.
+    description: |
+      This entrypoint configure nftables on the requested server.
+    options:
+      nftables_dir:
+        type: str
+        default: /etc/nftables
+        required: false
+        description: directory where to put nftable files
+
+      nftables_script_folder:
+        type: str
+        default: /usr/local/bin
+        required: false
+        description: folder where to put nftables related scripts
+
+      nftables_uninstall_iptables:
+        type: bool
+        default: false
+        required: false
+        description: whether to uninstall iptables
+
+      nftables_enable_filter_sets:
+        type: bool
+        default: true
+        required: false
+        description: whether to enable additional filter sets, see variables
+
+      nftables_enable_service:
+        type: bool
+        default: false
+        required: false
+        description: whether to enable the nftables systemd services
+
+      abuseip_api_key:
+        type: str
+        default: ""
+        required: false
+        description: optional abuseipdb API to pull blocklist from
+
+      nftables_open_tcp_ports_global:
+        type: list
+        elements: str
+        default:
+          - ssh
+        required: false
+        description: globally open tcp ports
+
+      nftables_open_tcp_ports_local:
+        type: list
+        elements: str
+        default: []
+        required: false
+        description: locally open tcp ports
+
+      nftables_open_tcp_ports_vpn:
+        type: list
+        elements: str
+        default: []
+        required: false
+        description: open tcp ports on VPN
+
+      nftables_open_udp_ports_global:
+        type: list
+        elements: str
+        default: []
+        required: false
+        description: globally open udp ports
+
+      nftables_open_udp_ports_local:
+        type: list
+        elements: str
+        default: []
+        required: false
+        description: locally open udp ports
+
+      nftables_open_udp_ports_vpn:
+        type: list
+        elements: str
+        default: []
+        required: false
+        description: open udp ports on VPN
+
+      nftables_sets:
+        type: str
+        default: "# no sets"
+        required: false
+        description: nftables sets to create
+
+      nftables_rules:
+        type: dict
+        required: false
+        default: {}
+        description: list of nftables rules that exist
+
+      nftables_variables:
+        type: dict
+        required: false
+        default: {}
+        description: list of nftables variables that exist
+
+      nftables_loaded_variables:
+        type: list
+        elements: str
+        default:
+          - header
+          - interface
+          - local_network
+          - tcp_ports
+          - udp_ports
+        required: false
+        description: list of variables that are loaded and passed to templates
+
+      nftables_ruleset:
+        type: dict
+        default:
+          "inet firewall":
+            desc: "firewall of device"
+            chains:
+              input:
+                - input_hook
+                - valid_connections
+                - loopback
+                - drop_tcp_fragments
+                - icmp
+                - icmpv6
+                - globally_allowed_tcp
+                - globally_allowed_udp
+        required: false
+        description: ruleset to create on host
+
+      nftables_dynamic_tables:
+        type: dict
+        default: {}
+        required: false
+        description: tables outside of control of ansible, that will be created and saved, but not managed

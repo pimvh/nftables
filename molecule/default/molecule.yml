@@ -20,7 +20,6 @@ platforms:
     privileged: true
 provisioner:
   name: ansible
-  host_vars:
   instance:
     ansible_user: ansible
 verifier:

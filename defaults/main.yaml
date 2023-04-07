@@ -15,28 +15,9 @@ nftables_open_udp_ports_global: []
 nftables_open_udp_ports_local: []
 nftables_open_udp_ports_vpn: []
 
-nftables_loaded_variables:
-  - header
-  - interface
-  - local_network
-  - tcp_ports
-  - udp_ports
-
-nftables_sets: "# no sets"
-
-# rules put into chains
-nftables_ruleset:
-  "inet firewall":
-    desc: "firewall of device"
-    chains:
-      input:
-        - input_hook
-        - valid_connections
-        - loopback
-        - drop_tcp_fragments
-        - icmp
-        - icmpv6
-        - globally_allowed_tcp
-        - globally_allowed_udp
-
+nftables_ruleset: {}
+nftables_rules: {}
+nftables_loaded_variables: {}
+nftables_variables: {}
 nftables_dynamic_tables: {}
+nftables_sets: {}

@@ -7,24 +7,6 @@
     - nftables_update
     - nftables_install
 
-- name: Include rules from rules file
-  ansible.builtin.include_vars:
-    file: vars/rules.yaml
-  when: not nftables_rules
-  tags:
-    - nftables_setup
-    - nftables_update
-    - nftables_install
-
-- name: Include variables from variables file
-  ansible.builtin.include_vars:
-    file: vars/variables.yaml
-  when: not nftables_variables
-  tags:
-    - nftables_setup
-    - nftables_update
-    - nftables_install
-
 - name: Assert rules are properly defined
   ansible.builtin.include_tasks:
     file: assert/assert_rules.yaml
@@ -66,8 +48,7 @@
 
 - name: Grab current nfttable names from output
   ansible.builtin.set_fact:
-    nft_table_names: "{{ current_nft_tables.stdout_lines | map('regex_replace', '^table
-      ', '') }}"
+    nft_table_names: "{{ current_nft_tables.stdout_lines | map('regex_replace', '^table ', '') }}"
   tags:
     - nftables_setup
     - nftables_update
