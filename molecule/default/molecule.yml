@@ -17,6 +17,7 @@ platforms:
       - /tmp
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    cgroupns_mode: host
     privileged: true
 provisioner:
   name: ansible
