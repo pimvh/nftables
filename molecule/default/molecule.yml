@@ -3,7 +3,7 @@
 dependency:
   name: galaxy
   options:
-    requirements-file: requirements.yml
+    requirements-file: requirements.yaml
 driver:
   name: docker
 lint: |
