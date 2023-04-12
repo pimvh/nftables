@@ -1,5 +1,7 @@
 # terraform managed
-# Inspired on: https://github.com/ansible-community/molecule-plugins/blob/main/src/molecule_plugins/docker/playbooks/Dockerfile.j2
+# Inspired on a combination of:
+# - https://github.com/ansible-community/molecule-plugins/blob/main/src/molecule_plugins/docker/playbooks/Dockerfile.j2
+# - https://gitlab.com/aussielunix/ansible/molecule-containers
 
 # Pull from a registry if specified in molecule.yml
 {% if item.registry is defined %}
@@ -33,7 +35,7 @@ RUN apt-get update && \
     apt-get install -y locales && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
     apt-get -y install --no-install-recommends systemd systemd-sysv \
-    sudo procps python3-pip python3-dev python3-setuptools python3-wheel bash \
+    sudo procps python3-pip python3-dev python3-setuptools python3-wheel bash iproute2 ca-certificates \
     # Clean up
     && rm -rf /var/lib/apt/lists/* \
     && rm -Rf /usr/share/doc && rm -Rf /usr/share/man \
@@ -47,9 +49,6 @@ RUN set -xe \
   && usermod -aG ${SUDO_GROUP} ${ANSIBLE_USER} \
   && usermod -aG ${DEPLOY_GROUP} ${ANSIBLE_USER} \
   && sed -i "/^%${SUDO_GROUP}/s/ALL\$/NOPASSWD:ALL/g" /etc/sudoers
-
-# Avoid apt warnings by switching to noninteractive
-ENV DEBIAN_FRONTEND=noninteractive
 
 # Upgrade pip to latest version to avoid wheel / cryptography issues
 RUN pip3 install --upgrade pip
