@@ -48,6 +48,16 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Enable IPv6 support for docker
+        run: |
+          sudo mkdir -p /etc/docker/
+          sudo tee << EOF > /etc/docker/daemon.json
+          {
+            "ipv6": true,
+            "fixed-cidr-v6": "2001:db8:1::/64"
+          }
+          EOF
+
       - name: Install dependencies
         run: |
           sudo apt install apt-transport-https ca-certificates curl software-properties-common
