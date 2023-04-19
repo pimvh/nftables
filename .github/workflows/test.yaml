@@ -5,7 +5,6 @@
 name: Ansible Molecule
 
 on:
-  push:
   pull_request:
   schedule:
     - cron: '7 4 4 * *'
