@@ -6,10 +6,6 @@ dependency:
     requirements-file: requirements.yaml
 driver:
   name: docker
-lint: |
-  set -e
-  yamllint .
-  ansible-lint
 platforms:
   - name: Ubuntu
     image: ubuntu:jammy
