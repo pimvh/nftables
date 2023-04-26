@@ -1,3 +1,4 @@
 # terraform managed
 *.pyc
 __pycache__
+venv/
