@@ -20,11 +20,14 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            test_requirements.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install yamllint ansible-lint
+          pip install -r test_requirements.txt
 
       - name: lint
         run: ansible-lint
@@ -46,14 +49,21 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+          cache: "pip"
+          cache: "pip"
+          cache-dependency-path: |
+            test_requirements.txt
 
-      - name: Install dependencies
+      - name: Install Docker
         run: |
           sudo apt install apt-transport-https ca-certificates curl software-properties-common
           curl -fsSL https://get.docker.com -o get-docker.sh
           sudo sh get-docker.sh
+
+      - name: Install Python requirements
+        run: |
           python -m pip install --upgrade pip
-          pip3 install ansible molecule-plugins[docker] yamllint ansible-lint pytest-testinfra
+          pip install -r test_requirements.txt
 
       - name: Run role tests
         run: |
