@@ -31,7 +31,6 @@ jobs:
           cache-dependency-path: |
             deploy_requirements.txt
 
-
       - name: Install dependencies
         run: |
           pip3 install --upgrade pip
