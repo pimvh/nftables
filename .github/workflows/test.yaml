@@ -50,7 +50,6 @@ jobs:
         with:
           python-version: "3.11"
           cache: "pip"
-          cache: "pip"
           cache-dependency-path: |
             test_requirements.txt
 
