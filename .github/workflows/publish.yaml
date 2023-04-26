@@ -27,13 +27,17 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            deploy_requirements.txt
+
 
       - name: Install dependencies
         run: |
           pip3 install --upgrade pip
-          pip3 install ansible
+          pip3 install -r deploy_requirements.txt
 
       - name: Publish role to galaxy
         run: |
           # repository is name/repo turn into -> name<SPACE>repo
-          ansible-galaxy role import --api-key ${{secrets.ANSIBLE_GALAXY_API_KEY}} $(echo "${{github.repository}}" | sed 's!/! !g')
+          ansible-galaxy role import --api-key ${{secrets.ANSIBLE_GALAXY_API_KEY}} $(echo "${{ github.repository }}" | sed 's!/! !g')
