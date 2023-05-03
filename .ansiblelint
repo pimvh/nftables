@@ -9,4 +9,3 @@ exclude_paths:
   - ./.cache
   - ./.github
   - ./requirements.yml
-
