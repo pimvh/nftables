@@ -13,4 +13,3 @@
     - name: "Include pimvh.nftables"
       ansible.builtin.include_role:
         name: "nftables"
-
