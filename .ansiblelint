@@ -1,5 +1,4 @@
 # terraform managed
-
 ---
 exclude_paths:
   - ./molecule/default/prepare.yml
