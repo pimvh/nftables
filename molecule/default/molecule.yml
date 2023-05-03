@@ -1,5 +1,4 @@
 # terraform managed
-
 ---
 dependency:
   name: galaxy
