@@ -1,5 +1,4 @@
 # terraform managed
-
 # Inspired on a combination of:
 # - https://github.com/ansible-community/molecule-plugins/blob/main/src/molecule_plugins/docker/playbooks/Dockerfile.j2
 # - https://gitlab.com/aussielunix/ansible/molecule-containers
@@ -69,5 +68,4 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
     /lib/systemd/system/systemd-update-utmp*
 
 CMD ["/lib/systemd/systemd", "log-level=info", "unit=sysinit.target"]
-
 
