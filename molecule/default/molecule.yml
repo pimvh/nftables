@@ -1,5 +1,6 @@
----
 # terraform managed
+
+---
 dependency:
   name: galaxy
   options:
@@ -22,3 +23,4 @@ provisioner:
     ansible_user: ansible
 verifier:
   name: testinfra
+
