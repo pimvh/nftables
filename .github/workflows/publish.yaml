@@ -40,4 +40,3 @@ jobs:
         run: |
           # repository is name/repo turn into -> name<SPACE>repo
           ansible-galaxy role import --api-key ${{secrets.ANSIBLE_GALAXY_API_KEY}} $(echo "${{ github.repository }}" | sed 's!/! !g')
-
