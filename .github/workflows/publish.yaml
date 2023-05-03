@@ -1,5 +1,6 @@
----
 # terraform managed
+
+---
 # Inspired on robertdebock (https://github.com/robertdebock) publish workflow
 
 name: Release main or releases to Ansible Galaxy
@@ -40,3 +41,4 @@ jobs:
         run: |
           # repository is name/repo turn into -> name<SPACE>repo
           ansible-galaxy role import --api-key ${{secrets.ANSIBLE_GALAXY_API_KEY}} $(echo "${{ github.repository }}" | sed 's!/! !g')
+
