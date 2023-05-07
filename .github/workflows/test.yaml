@@ -31,6 +31,10 @@ jobs:
 
       - name: lint
         run: ansible-lint
+        env:
+          # These tell ansible-lint to use github compatible annotation format:
+          GITHUB_ACTIONS: "true"
+          GITHUB_WORKFLOW: "{{ github.workflow.name }}"
 
   molecule:
     needs:
