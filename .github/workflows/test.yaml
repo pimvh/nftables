@@ -5,6 +5,7 @@
 name: Ansible Molecule
 
 on:
+  workflow_dispatch:
   pull_request:
   schedule:
     - cron: '7 4 4 * *'
