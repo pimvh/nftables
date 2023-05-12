@@ -12,4 +12,3 @@ rules:
   line-length: disable
   key-ordering: disable
   truthy: disable
-  new-line-at-end-of-file: disable
