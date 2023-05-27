@@ -1,6 +1,6 @@
 # terraform managed
 ---
-# Inspired on robertdebock (https://github.com/robertdebock) and erissysmin (https://github.com/erissysmin) molecule workflow.
+# Inspired on robertdebock (https://github.com/robertdebock) and ericsysmin (https://github.com/ericsysmin) molecule workflow.
 
 name: Ansible Molecule
 
