@@ -1,5 +1,6 @@
 ---
 systemd_failmail_email: "foo@example.com"
+nftables_abuseip_api_key: "<< API KEY HERE >>"
 
 # rules put into chains
 nftables_ruleset:
@@ -14,8 +15,6 @@ nftables_ruleset:
         - icmp
         - icmpv6
         - globally_allowed_tcp
-
-nftables_dynamic_tables: {}
 
 # some rules were inspired on:
 # https://github.com/yoramvandevelde/nftables-example/blob/master/nftables-init.rules
