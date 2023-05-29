@@ -64,9 +64,6 @@ nftables_rules:
 # make sure the keys match
 # see molecule/default/vars/test.yaml for an example
 nftables_variables:
-  header:
-    comment: this is a simple firewall, for ipv4 and ipv6
-    def: "# built by me :)"
 
   tcp_ports:
     comment: tcp ports configuration
