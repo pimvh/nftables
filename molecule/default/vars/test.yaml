@@ -53,19 +53,21 @@ nftables_rules:
       iifname $WAN_IF tcp dport $OPEN_TCP_PORTS ct state new accept
     depends_on:
       - tcp_ports
+      - interface
 
   globally_allowed_udp:
     def: |
       iifname $WAN_IF udp dport $OPEN_UDP_PORTS ct state new accept
     depends_on:
       - udp_ports
+      - interface
 
   locally_allowed_tcp:
     def: |
       ip  saddr $LOCAL_IPV4_RANGE ip  daddr $ASSIGNED_IPV4_RANGE tcp dport $LOCAL_OPEN_TCP_PORTS accept
       ip6 saddr $LOCAL_IPV6_RANGE ip6 daddr $ASSIGNED_IPV6_RANGE tcp dport $LOCAL_OPEN_TCP_PORTS accept
     depends_on:
-      - local_network
+      - local_range
 
 nftables_variables:
   tcp_ports:
@@ -82,7 +84,7 @@ nftables_variables:
       {% if nftables_open_udp_ports_local %}define LOCAL_OPEN_UDP_PORTS = { {{ nftables_open_udp_ports_local | join(",") }} }{% endif +%}
       {% if nftables_open_udp_ports_vpn %}define VPN_UDP_PORTS = { {{ nftables_open_udp_ports_vpn | join(",") }} }{% endif +%}
 
-  local_network:
+  local_range:
     comment: local ranges in ipv4/ipv6
     def: |
       define LOCAL_IPV4_RANGE = { 10.0.0.0/8, 127.16.0.1/12, 192.168.0.0/16 }

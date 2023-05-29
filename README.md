@@ -15,13 +15,16 @@ Review the variables as shown in defaults.
 You can add a firewall definition to the variables for your host (../host_vars/[host_name].yaml), group of hosts (../group_vars/[group_name].yaml) using the following structure (see molecule.default.vars/test.yaml for an example):
 
 ```
+# this variable point to the rules that are pushed to the remote host
+# it is a dict of tables, with chain, with rules, see molecule/default/vars/test.yaml
 nftables_ruleset:
-
-  # firewall family and name"
+  # keys of this become tables
+  # they must be:
+  # firewall family and name, e.g."
   "inet firewall":
 
     # description of the table
-    desc: "firewall of device"
+    comment: "firewall of device"
 
     chains:
 
@@ -34,12 +37,16 @@ nftables_ruleset:
         - ...
 
   # another table with the same structure
+  # valid families are things like inet, inet6, netdev, and inet,
+  # see nftables docs for the full reference
   "inet foo":
 
-# the rules here ....
+# the potential rules are defined under `nftables_rules`
 # every rule has two attributes:
-# def: the definition of the rules or set of rules in valid nftables syntax
-# depends_on: optional list of dependencies of variables from nftables_variables
+# -> def: the definition of the rules or set of rules in valid nftables syntax
+# -> depends_on: optional list of dependencies of variables from nftables_variables
+# see molecule/default/vars/test.yaml for an example
+
 nftables_rules:
   input_hook: >
     type filter hook input priority 0; policy drop;
@@ -53,20 +60,22 @@ nftables_rules:
         ct state new accept
 
 
+# these are the variable definition, which are included with depends_on
+# make sure the keys match
+# see molecule/default/vars/test.yaml for an example
 nftables_variables:
   header:
-    note: this is a simple firewall, for ipv4 and ipv6
+    comment: this is a simple firewall, for ipv4 and ipv6
     def: "# built by me :)"
 
   tcp_ports:
-    note: tcp ports configuration
+    comment: tcp ports configuration
     def: |
       {% if nftables_open_tcp_ports_global %}define OPEN_TCP_PORTS = { {{ nftables_open_tcp_ports_global | join(",") }} }{% endif +%}
       {% if nftables_open_tcp_ports_local %}define LOCAL_OPEN_TCP_PORTS = { {{ nftables_open_tcp_ports_local | join(",") }} }{% endif +%}
       {% if nftables_open_tcp_ports_vpn %}define VPN_TCP_PORTS = { {{ nftables_open_tcp_ports_vpn | join(",") }} }{% endif +%}
 
-  ... (see defaults/main.yaml)
-
+  ...
 
 ```
 
