@@ -8,17 +8,19 @@ def test_os_release(host):
 
 
 def test_nft_present(host):
-    """test ssh ssh_known_hosts file has been created,
-    with the requested key types"""
+    """test that the nft binary is present on the system"""
 
     assert host.run("which nft").rc == 0
 
 
-def test_nft_table_firewall(host):
-    """test ssh ssh_known_hosts file has been created,
-    with the requested key types"""
+def test_nft_tables_present(host):
+    """test that the nft firewall table has been created"""
 
-    assert host.run("nft list tables").contains("inet firewall")
+    with host.sudo():
+        output = host.check_output("nft list tables")
+
+    assert "inet firewall" in output
+    assert "inet blocklist" in output
 
 
 def nftables_abuseip_service(host):
@@ -26,6 +28,7 @@ def nftables_abuseip_service(host):
 
     assert host.file("/usr/local/bin/manage_nft_abuseip_blocklist.py")
     assert host.service("update-abuseip-blocklist.timer").is_running
+    assert host.service("update-abuseip-blocklist.timer").is_enabled
 
 
 def test_table_files_created(host):
