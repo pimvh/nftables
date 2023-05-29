@@ -1,12 +1,4 @@
 ---
-- name: Check that required passed variables are defined
-  ansible.builtin.include_tasks:
-    file: assert/assert_vars.yaml
-  tags:
-    - nftables_setup
-    - nftables_update
-    - nftables_install
-
 - name: Assert rules are properly defined
   ansible.builtin.include_tasks:
     file: assert/assert_rules.yaml
@@ -15,6 +7,18 @@
         - nftables_setup
         - nftables_update
         - nftables_install
+
+- name: Get required variables from rules dependencies
+  ansible.builtin.set_fact:
+    _nftables_required_variables: "{{ nftables_ruleset | get_rule_dependencies(nftables_rules) }}"
+
+- name: Check that required passed variables are defined
+  ansible.builtin.include_tasks:
+    file: assert/assert_vars.yaml
+  tags:
+    - nftables_setup
+    - nftables_update
+    - nftables_install
 
 - name: Install nftables and requirements for this role
   ansible.builtin.package:
@@ -52,6 +56,14 @@
   tags:
     - nftables_setup
     - nftables_update
+
+- name: Create abuseipdb based blocklist (when abuseipdb key is passed)
+  ansible.builtin.include_tasks:
+    file: abuseipdb/blocklist.yaml
+    apply:
+      tags:
+        - nftables_setup
+  when: nftables_abuseip_api_key
 
 - name: Create requested nft tables (in memory)
   ansible.builtin.include_tasks:
@@ -96,14 +108,6 @@
   become: true
   tags:
     - nftables_setup
-
-- name: Create abuseipdb based blocklist
-  ansible.builtin.include_tasks:
-    file: abuseipdb/blocklist.yaml
-    apply:
-      tags:
-        - nftables_setup
-  when: abuseip_api_key
 
 - name: Uninstall iptables if present
   ansible.builtin.package:

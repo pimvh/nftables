@@ -2,19 +2,22 @@
 
 {{ ansible_managed | comment }}
 
-import nftables
-import subprocess
-import json
 import ipaddress
-from jinja2 import Template
-import requests
-import sys
+import json
 import logging
+import subprocess
+import sys
+
+import jinja2
+import requests
+from jinja2 import Template
+
+import nftables
 
 logging.basicConfig(level='INFO')
 logger = logging.getLogger(name=None)
 
-ABUSE_IP_API_KEY = "{{ abuseip_api_key }}"
+ABUSE_IP_API_KEY = "{{ nftables_abuseip_api_key }}"
 
 # template of blocklist
 {% raw %}

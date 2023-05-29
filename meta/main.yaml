@@ -59,7 +59,7 @@ argument_specs:
         required: false
         description: whether to enable the nftables systemd services
 
-      abuseip_api_key:
+      nftables_abuseip_api_key:
         type: str
         default: ""
         required: false
@@ -125,18 +125,6 @@ argument_specs:
         required: false
         default: {}
         description: list of nftables variables that exist
-
-      nftables_loaded_variables:
-        type: list
-        elements: str
-        default:
-          - header
-          - interface
-          - local_network
-          - tcp_ports
-          - udp_ports
-        required: false
-        description: list of variables that are loaded and passed to templates
 
       nftables_ruleset:
         type: dict

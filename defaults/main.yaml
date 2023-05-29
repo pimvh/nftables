@@ -4,7 +4,7 @@ nftables_script_folder: /usr/local/bin
 nftables_uninstall_iptables: false
 nftables_enable_filter_sets: true
 nftables_enable_service: false
-abuseip_api_key: ""
+nftables_abuseip_api_key: ""
 
 nftables_open_tcp_ports_global:
   - ssh
@@ -17,7 +17,6 @@ nftables_open_udp_ports_vpn: []
 
 nftables_ruleset: {}
 nftables_rules: {}
-nftables_loaded_variables: {}
 nftables_variables: {}
 nftables_dynamic_tables: {}
 nftables_sets: {}

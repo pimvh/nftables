@@ -15,6 +15,7 @@ class FilterModule:
             "multiline_indent": self.multiline_indent,
             "strip_family": self.strip_family,
             "get_rule_names": self.get_rule_names,
+            "get_rule_dependencies": self.get_rule_dependencies,
         }
 
     def is_list(self, obj):
@@ -59,3 +60,35 @@ class FilterModule:
         all_rules = list(itertools.chain(*all_rules))
 
         return all_rules
+
+    def get_rule_dependencies(self, obj, all_rules):
+        """get rule potential rule dependencies from nested nftables yaml"""
+
+        if isinstance(obj, AnsibleUndefined):
+            return []
+
+        elif not isinstance(obj, dict):
+            raise AnsibleFilterError("This only works on dict")
+
+        # cannot use set here as we need
+        # fixed variable order to stay idempotent
+        dependencies = []
+
+        # iterate over structure
+        # getting the value of the rules specified
+        for table in obj:
+            for _, rules in obj[table].get("chains").items():
+                for rule in rules:
+                    current_rule = all_rules[rule]
+
+                    if rule_dependencies := current_rule.get("depends_on"):
+                        if not isinstance(rule_dependencies, list):
+                            raise AnsibleFilterError(
+                                "dependency for %s should be list", rule
+                            )
+
+                        for dep in rule_dependencies:
+                            if dep not in dependencies:
+                                dependencies.append(dep)
+
+        return dependencies
