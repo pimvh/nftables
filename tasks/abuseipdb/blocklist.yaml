@@ -58,7 +58,7 @@
       ansible.builtin.command: "nft add table blocklist"
       become: true
       changed_when: true
-      when: not 'blocklist' in nft_table_names
+      when: not "inet blocklist" in nft_table_names
       tags:
         - nftables_setup
 
