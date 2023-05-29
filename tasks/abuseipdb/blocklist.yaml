@@ -13,7 +13,6 @@
     group: root
     mode: u=rwx,g=rx,o=x
   become: true
-  when: abuseip_api_key is defined
 
 - name: Make systemd services for update-abuseip-blocklist
   block:
