@@ -70,7 +70,7 @@ class FilterModule:
         elif not isinstance(obj, dict):
             raise AnsibleFilterError("This only works on dict")
 
-        dependencies = []
+        dependencies = set()
 
         for table in obj:
             for _, rules in obj[table].get("chains").items():
@@ -83,7 +83,8 @@ class FilterModule:
                             )
 
                         for dep in rule_dependencies:
-                            dependencies.append(dep)
+                            if dep not in dependencies:
+                                dependencies.add(dep)
 
         # return deduplicated dependencies
-        return list(set(dependencies))
+        return list(dependencies)
