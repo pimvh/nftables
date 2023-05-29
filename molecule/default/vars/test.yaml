@@ -4,7 +4,7 @@ systemd_failmail_email: "foo@example.com"
 # rules put into chains
 nftables_ruleset:
   "inet firewall":
-    desc: "firewall of device"
+    comment: "firewall of device"
     chains:
       input:
         - input_hook
@@ -69,27 +69,27 @@ nftables_rules:
 
 nftables_variables:
   tcp_ports:
-    note: tcp ports configuration
+    comment: tcp ports configuration
     def: |
       {% if nftables_open_tcp_ports_global %}define OPEN_TCP_PORTS = { {{ nftables_open_tcp_ports_global | join(",") }} }{% endif +%}
       {% if nftables_open_tcp_ports_local %}define LOCAL_OPEN_TCP_PORTS = { {{ nftables_open_tcp_ports_local | join(",") }} }{% endif +%}
       {% if nftables_open_tcp_ports_vpn %}define VPN_TCP_PORTS = { {{ nftables_open_tcp_ports_vpn | join(",") }} }{% endif +%}
 
   udp_ports:
-    note: udp ports configuration
+    comment: udp ports configuration
     def: |
       {% if nftables_open_udp_ports_global %}define OPEN_UDP_PORTS = { {{ nftables_open_udp_ports_global | join(",") }} }{% endif +%}
       {% if nftables_open_udp_ports_local %}define LOCAL_OPEN_UDP_PORTS = { {{ nftables_open_udp_ports_local | join(",") }} }{% endif +%}
       {% if nftables_open_udp_ports_vpn %}define VPN_UDP_PORTS = { {{ nftables_open_udp_ports_vpn | join(",") }} }{% endif +%}
 
   local_network:
-    note: local ranges in ipv4/ipv6
+    comment: local ranges in ipv4/ipv6
     def: |
       define LOCAL_IPV4_RANGE = { 10.0.0.0/8, 127.16.0.1/12, 192.168.0.0/16 }
       define LOCAL_IPV6_RANGE = { ::1/128 }
 
   interface:
-    note: define public interface
+    comment: define public interface
     def: |
       define WAN_IF = "eth0"
 
