@@ -1,18 +1,14 @@
 ---
-- name: Verify that required variables are defined
+- name: Verify that all required rule variables are defined
   ansible.builtin.assert:
     that:
-      - "{{ item }} is defined"
-      - "{{ item }} | length > 0"
-      - "{{ item }} != None"
+      - "nftables_variables.{{ item }} is defined"
+      - "nftables_variables.{{ item }} | length > 0"
+      - "nftables_variables.{{ item }} != None"
     fail_msg: "{{ item }} needs to be set for the role to work"
     success_msg: "Required variable {{ item }} is defined"
   changed_when: false
-  diff: false
   delegate_to: localhost
   run_once: true
-  loop:
-    - nftables_ruleset
-    - nftables_dir
-    - nftables_script_folder
-    - nftables_loaded_variables
+  diff: false
+  loop: "{{ _nftables_required_variables }}"

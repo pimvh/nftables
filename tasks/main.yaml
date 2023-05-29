@@ -1,12 +1,4 @@
 ---
-- name: Check that required passed variables are defined
-  ansible.builtin.include_tasks:
-    file: assert/assert_vars.yaml
-  tags:
-    - nftables_setup
-    - nftables_update
-    - nftables_install
-
 - name: Assert rules are properly defined
   ansible.builtin.include_tasks:
     file: assert/assert_rules.yaml
@@ -15,6 +7,18 @@
         - nftables_setup
         - nftables_update
         - nftables_install
+
+- name: Get required variables from rules dependencies
+  ansible.builtin.set_fact:
+    _nftables_required_variables: "{{ nftables_ruleset | get_rule_dependencies(nftables_rules) }}"
+
+- name: Check that required passed variables are defined
+  ansible.builtin.include_tasks:
+    file: assert/assert_vars.yaml
+  tags:
+    - nftables_setup
+    - nftables_update
+    - nftables_install
 
 - name: Install nftables and requirements for this role
   ansible.builtin.package:

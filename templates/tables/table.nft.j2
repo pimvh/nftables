@@ -1,8 +1,8 @@
 #!/usr/sbin/nft -f
 {{ ansible_managed | comment }}
 
-{% if nftables_ruleset[table].desc is defined -%}
-# {{ nftables_ruleset[table].desc }}
+{% if nftables_ruleset[table].comment is defined -%}
+# {{ nftables_ruleset[table].comment }}
 {% endif %}
 table {{ table }} {
 {% if nftables_enable_filter_sets and table == "inet firewall" %}
@@ -13,10 +13,10 @@ table {{ table }} {
     chain {{ chain }} {
 
 {% for chain_rule in chain_rules %}
-{%- if nftables_rules[chain_rule] | is_list %}
-{{ nftables_rules[chain_rule] | multiline_indent(indent=8) }}
+{%- if nftables_rules[chain_rule].def | is_list %}
+{{ nftables_rules[chain_rule].def | multiline_indent(indent=8) }}
 {% else %}
-{{ nftables_rules[chain_rule] | indent(width=8, first=True) }}
+{{ nftables_rules[chain_rule].def | indent(width=8, first=True) }}
 {% endif -%}
 {% endfor %}
     }

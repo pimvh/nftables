@@ -1,13 +1,6 @@
 ---
 systemd_failmail_email: "foo@example.com"
 
-nftables_loaded_variables:
-  - header
-  - interface
-  - local_network
-  - tcp_ports
-  - udp_ports
-
 # rules put into chains
 nftables_ruleset:
   "inet firewall":
@@ -27,43 +20,54 @@ nftables_dynamic_tables: {}
 # some rules were inspired on:
 # https://github.com/yoramvandevelde/nftables-example/blob/master/nftables-init.rules
 nftables_rules:
-  input_hook: >
-    type filter hook input priority 0; policy drop;
-  valid_connections: |
-    ct state established, related accept
-    ct state invalid drop
+  input_hook:
+    def: type filter hook input priority 0; policy drop;
+  valid_connections:
+    def: |
+      ct state established, related accept
+      ct state invalid drop
 
-  new_connections: |
-    ct state new accept
+  new_connections:
+    def: ct state new accept
 
-  loopback: |
-    iif != lo ip  daddr 127.0.0.1/8 counter drop comment "drop fake loopback"
-    iif != lo ip6 daddr ::1/128     counter drop
-    meta iifname lo accept
+  loopback:
+    def: |
+      iif != lo ip  daddr 127.0.0.1/8 counter drop comment "drop fake loopback"
+      iif != lo ip6 daddr ::1/128     counter drop
+      meta iifname lo accept
 
-  drop_tcp_fragments: |
-    # Drop all fragments.
-    ip frag-off & 0x1fff != 0 counter drop
+  drop_tcp_fragments:
+    def: |
+      ip frag-off & 0x1fff != 0 counter drop comment "Drop all fragments"
 
-  icmp: >-
-    ip protocol icmp icmp type { destination-unreachable, echo-reply, echo-request, time-exceeded } limit rate 10/second burst 2 packets accept
-  icmpv6: >-
-    ip6 nexthdr icmpv6 icmpv6 type { destination-unreachable, echo-reply, echo-request, packet-too-big, parameter-problem, time-exceeded } limit rate 10/second burst 2 packets accept
-  globally_allowed_tcp: |
-    iifname $WAN_IF tcp dport $OPEN_TCP_PORTS ct state new accept
+  icmp:
+    def: >-
+      ip protocol icmp icmp type { destination-unreachable, echo-reply, echo-request, time-exceeded } limit rate 10/second burst 2 packets accept
 
-  globally_allowed_udp: |
-    iifname $WAN_IF udp dport $OPEN_UDP_PORTS ct state new accept
+  icmpv6:
+    def: >-
+      ip6 nexthdr icmpv6 icmpv6 type { destination-unreachable, echo-reply, echo-request, packet-too-big, parameter-problem, time-exceeded } limit rate 10/second burst 2 packets accept
 
-  locally_allowed_tcp: |
-    ip  saddr $LOCAL_IPV4_RANGE ip  daddr $ASSIGNED_IPV4_RANGE tcp dport $LOCAL_OPEN_TCP_PORTS accept
-    ip6 saddr $LOCAL_IPV6_RANGE ip6 daddr $ASSIGNED_IPV6_RANGE tcp dport $LOCAL_OPEN_TCP_PORTS accept
+  globally_allowed_tcp:
+    def: |
+      iifname $WAN_IF tcp dport $OPEN_TCP_PORTS ct state new accept
+    depends_on:
+      - tcp_ports
+
+  globally_allowed_udp:
+    def: |
+      iifname $WAN_IF udp dport $OPEN_UDP_PORTS ct state new accept
+    depends_on:
+      - udp_ports
+
+  locally_allowed_tcp:
+    def: |
+      ip  saddr $LOCAL_IPV4_RANGE ip  daddr $ASSIGNED_IPV4_RANGE tcp dport $LOCAL_OPEN_TCP_PORTS accept
+      ip6 saddr $LOCAL_IPV6_RANGE ip6 daddr $ASSIGNED_IPV6_RANGE tcp dport $LOCAL_OPEN_TCP_PORTS accept
+    depends_on:
+      - local_network
 
 nftables_variables:
-  header:
-    note: this is a simple firewall, for ipv4 and ipv6
-    def: "# built by me :)"
-
   tcp_ports:
     note: tcp ports configuration
     def: |

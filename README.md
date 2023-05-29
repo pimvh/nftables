@@ -37,22 +37,20 @@ nftables_ruleset:
   "inet foo":
 
 # the rules here ....
+# every rule has two attributes:
+# def: the definition of the rules or set of rules in valid nftables syntax
+# depends_on: optional list of dependencies of variables from nftables_variables
 nftables_rules:
   input_hook: >
     type filter hook input priority 0; policy drop;
-  valid_connections: |
-    ct state established, related accept
-    ct state invalid drop
+  valid_connections:
+    def: |
+        ct state established, related accept
+        ct state invalid drop
 
-  new_connections: |
-    ct state new accept
-  ... (see defaults/main.yaml)
-  ...
-
-
-nftables_loaded_variables:
-  - header
-  ... (see defaults/main.yaml)
+  new_connections:
+    def: |
+        ct state new accept
 
 
 nftables_variables:

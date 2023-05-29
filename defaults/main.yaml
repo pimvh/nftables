@@ -17,7 +17,6 @@ nftables_open_udp_ports_vpn: []
 
 nftables_ruleset: {}
 nftables_rules: {}
-nftables_loaded_variables: {}
 nftables_variables: {}
 nftables_dynamic_tables: {}
 nftables_sets: {}

@@ -126,18 +126,6 @@ argument_specs:
         default: {}
         description: list of nftables variables that exist
 
-      nftables_loaded_variables:
-        type: list
-        elements: str
-        default:
-          - header
-          - interface
-          - local_network
-          - tcp_ports
-          - udp_ports
-        required: false
-        description: list of variables that are loaded and passed to templates
-
       nftables_ruleset:
         type: dict
         default:

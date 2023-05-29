@@ -2,8 +2,8 @@
 {{ ansible_managed | comment }}
 
 # Defined variables
-{% for variable in nftables_loaded_variables %}
-# {{ nftables_variables[variable].note }}
+{% for variable in _nftables_required_variables %}
+# {{ nftables_variables[variable].comment }}
 {{ nftables_variables[variable].def }}
 
 {% endfor %}
