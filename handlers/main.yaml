@@ -21,3 +21,13 @@
   when: nftables_enable_service
   become: true
   listen: enable nftables service
+
+- name: Enable update-abuseip-blocklist timer
+  ansible.builtin.systemd:
+    name: update-abuseip-blocklist.timer
+    state: started
+    enabled: true
+    daemon_reload: true
+  become: true
+  ignore_errors: "{{ ansible_check_mode }}"
+  listen: "enable abuseip-blocklist timer"

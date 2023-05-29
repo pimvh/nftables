@@ -53,6 +53,14 @@
     - nftables_setup
     - nftables_update
 
+- name: Create abuseipdb based blocklist (when abuseipdb key is passed)
+  ansible.builtin.include_tasks:
+    file: abuseipdb/blocklist.yaml
+    apply:
+      tags:
+        - nftables_setup
+  when: nftables_abuseip_api_key
+
 - name: Create requested nft tables (in memory)
   ansible.builtin.include_tasks:
     file: nft/create_nft_tables.yaml
@@ -96,14 +104,6 @@
   become: true
   tags:
     - nftables_setup
-
-- name: Create abuseipdb based blocklist
-  ansible.builtin.include_tasks:
-    file: abuseipdb/blocklist.yaml
-    apply:
-      tags:
-        - nftables_setup
-  when: abuseip_api_key
 
 - name: Uninstall iptables if present
   ansible.builtin.package:

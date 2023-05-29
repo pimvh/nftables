@@ -59,7 +59,7 @@ argument_specs:
         required: false
         description: whether to enable the nftables systemd services
 
-      abuseip_api_key:
+      nftables_abuseip_api_key:
         type: str
         default: ""
         required: false

@@ -15,7 +15,7 @@
   become: true
   changed_when: true
   when: not table in nft_table_names
-  loop: "{{ nftables_dynamic_tables.keys() | list + ['inet blocklist'] }}"
+  loop: "{{ nftables_dynamic_tables.keys() | list }}"
   loop_control:
     loop_var: table
   tags:

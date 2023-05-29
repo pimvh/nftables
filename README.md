@@ -96,7 +96,7 @@ roles:
 - copy a nftables template to nftables directory
 - edit nftables service to point to our new main file
 - create script to reload firewall, which dumps tables outside of our control to files, and reloads the firewall after
-- when abuseip_api_key is defined, add a script to pull the blocklist using their api, and make that a systemd service
+- when nftables_abuseip_api_key is defined, add a script to pull the blocklist using their api, and make that a systemd service
 - enable nftable service when requested
 - uninstall iptables when requested
 
