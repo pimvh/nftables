@@ -70,12 +70,17 @@ class FilterModule:
         elif not isinstance(obj, dict):
             raise AnsibleFilterError("This only works on dict")
 
-        dependencies = set()
+        # cannot use set here as we need
+        # fixed variable order to stay idempotent
+        dependencies = []
 
+        # iterate over structure
+        # getting the value of the rules specified
         for table in obj:
             for _, rules in obj[table].get("chains").items():
                 for rule in rules:
                     current_rule = all_rules[rule]
+
                     if rule_dependencies := current_rule.get("depends_on"):
                         if not isinstance(rule_dependencies, list):
                             raise AnsibleFilterError(
@@ -84,7 +89,6 @@ class FilterModule:
 
                         for dep in rule_dependencies:
                             if dep not in dependencies:
-                                dependencies.add(dep)
+                                dependencies.append(dep)
 
-        # return deduplicated dependencies
-        return list(dependencies)
+        return dependencies
