@@ -7,15 +7,12 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: Ubuntu
-    image: ubuntu:jammy
-    cmd: /lib/systemd/systemd
+  - name: ubuntu-jammy-jellyfish
+    image: "quay.io/pimvh/molecule-ubuntu-jammy-jellyfish:latest"
     tmpfs:
       - /run
       - /tmp
     privileged: true
-    pre_build_image: false
-    override_command: false
 provisioner:
   name: ansible
   inventory:
