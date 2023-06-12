@@ -1,0 +1,24 @@
+# terraform managed
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yaml
+driver:
+  name: docker
+platforms:
+  - name: "${IMAGE_NAME:-ubuntu_jammy_jellyfish}"
+    image: "${REGISTRY:-quay.io/pimvh}/${IMAGE_ID:-molecule-ubuntu-jammy-jellyfish}:latest"
+    tmpfs:
+      - /run
+      - /tmp
+    privileged: true
+    override_command: false
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      ubuntu_jammy_jellyfish:
+        ansible_user: ansible
+verifier:
+  name: testinfra
