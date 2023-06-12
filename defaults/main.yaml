@@ -19,4 +19,5 @@ nftables_ruleset: {}
 nftables_rules: {}
 nftables_variables: {}
 nftables_dynamic_tables: {}
-nftables_sets: {}
+nftables_sets: |
+  # no sets
