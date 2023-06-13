@@ -7,7 +7,7 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: "${IMAGE_NAME:-ubuntu_jammy_jellyfish}"
+  - name: "${IMAGE_NAME:-ubuntu-jammy-jellyfish}"
     image: "${REGISTRY:-quay.io/pimvh}/${IMAGE_ID:-molecule-ubuntu-jammy-jellyfish}:latest"
     tmpfs:
       - /run
@@ -18,7 +18,7 @@ provisioner:
   name: ansible
   inventory:
     host_vars:
-      ubuntu_jammy_jellyfish:
+      ubuntu-jammy-jellyfish:
         ansible_user: ansible
 verifier:
   name: testinfra
