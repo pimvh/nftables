@@ -1,0 +1,85 @@
+# terraform managed
+---
+# Inspired on robertdebock (https://github.com/robertdebock) and ericsysmin (https://github.com/ericsysmin) molecule workflow.
+
+name: Ansible Molecule
+
+on:
+  workflow_dispatch:
+  pull_request:
+  schedule:
+    - cron: '7 4 4 * *'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            test_requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r test_requirements.txt
+
+      - name: lint
+        run: ansible-lint
+        env:
+          # These tell ansible-lint to use github compatible annotation format:
+          GITHUB_ACTIONS: "true"
+          GITHUB_WORKFLOW: "{{ github.workflow.name }}"
+
+  molecule:
+    needs:
+      - lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        system:
+          - {os: ubuntu, version: jammy-jellyfish}
+    env:
+      # allows molecule colors to be passed to GitHub Actions
+      PY_COLORS: 1
+      # allows ansible colors to be passed to GitHub Actions
+      ANSIBLE_FORCE_COLOR: 1
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            test_requirements.txt
+
+      - name: Install Docker
+        run: |
+          sudo apt install apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+
+      - name: Install Python requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r test_requirements.txt
+          if [[ -f 'role_requirements.txt' ]]; then pip install -r role_requirements.txt; fi
+
+      - name: Run role tests
+        run: |
+          molecule --version
+          ansible --version
+          molecule test
+        env:
+          IMAGE_NAME: ${{ matrix.system.os }}-${{ matrix.system.version }}
+          IMAGE_ID: molecule-${{ matrix.system.os }}-${{ matrix.system.version }}
+          REGISTRY: quay.io/${{ github.repository_owner }}
