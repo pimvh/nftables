@@ -20,6 +20,7 @@ include "{{ nftables_dir }}/{{ table | strip_family }}.nft"
 # ipv4/ipv6 blocklist of bad reputation IPs
 include "{{ nftables_dir}}/blocklist.nft"
 {% endif %}
+
 # Dynamic tables
 {% for table, contents in nftables_dynamic_tables.items() %}
 {%- if contents.comment is defined %}

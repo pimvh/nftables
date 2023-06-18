@@ -1,10 +1,4 @@
 ---
-- name: Install packages for managing abuse_ip blocklist with python
-  ansible.builtin.pip:
-    name:
-      - jinja2
-      - requests
-
 - name: Move python script to lib
   ansible.builtin.template:
     src: abuseipdb/manage_nft_abuseip_blocklist.py.j2
