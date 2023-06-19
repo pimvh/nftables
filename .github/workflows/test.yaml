@@ -10,6 +10,10 @@ on:
   schedule:
     - cron: '7 4 4 * *'
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   lint:
     runs-on: ubuntu-latest
