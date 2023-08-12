@@ -48,6 +48,7 @@ jobs:
     strategy:
       matrix:
         system:
+          - {os: debian, version: bookworm}
           - {os: ubuntu, version: jammy-jellyfish}
     env:
       # allows molecule colors to be passed to GitHub Actions
