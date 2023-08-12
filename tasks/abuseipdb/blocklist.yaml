@@ -13,7 +13,7 @@
     - name: Move update-abuseip-blocklist systemd timer file to host
       ansible.builtin.template:
         src: abuseipdb/update-abuseip-blocklist.timer.j2
-        dest: "/lib/systemd/system/update-abuseip-blocklist.timer"
+        dest: "/etc/systemd/system/update-abuseip-blocklist.timer"
         # validate: "systemd-analyze verify %s"
         owner: root
         group: root
@@ -23,7 +23,7 @@
     - name: Move update-abuseip-blocklist systemd service file to host
       ansible.builtin.template:
         src: abuseipdb/update-abuseip-blocklist.service.j2
-        dest: "/lib/systemd/system/update-abuseip-blocklist.service"
+        dest: "/etc/systemd/system/update-abuseip-blocklist.service"
         # validate: "systemd-analyze verify %s"
         owner: root
         group: root
@@ -33,14 +33,14 @@
     - name: Validate update-abuseip-blocklist.service
       ansible.builtin.command: systemd-analyze verify update-abuseip-blocklist.service
       args:
-        chdir: "/lib/systemd"
+        chdir: "/etc/systemd"
       changed_when: false
       become: true
 
     - name: Validate update-abuseip-blocklist.timer
       ansible.builtin.command: systemd-analyze verify update-abuseip-blocklist.timer
       args:
-        chdir: "/lib/systemd"
+        chdir: "/etc/systemd"
       changed_when: false
       become: true
       notify:
