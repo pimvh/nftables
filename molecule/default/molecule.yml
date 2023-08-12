@@ -18,6 +18,8 @@ provisioner:
   name: ansible
   inventory:
     host_vars:
+      debian-bookworm:
+        ansible_user: ansible
       ubuntu-jammy-jellyfish:
         ansible_user: ansible
 verifier:
