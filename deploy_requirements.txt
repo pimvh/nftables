@@ -1,2 +1,2 @@
 # terraform managed
-ansible==7.4
+ansible==8.0
