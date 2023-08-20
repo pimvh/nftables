@@ -1,6 +1,7 @@
 # terraform managed
 ansible==8.0
+ansible-core==2.15.2 # TEMP: fix for https://github.com/ansible/molecule/issues/4017
 ansible-lint==6.17.1
-molecule==5.0.1
+molecule==6.0.1
 molecule-plugins[docker]==23.4.0
 pytest-testinfra==7.0.0
