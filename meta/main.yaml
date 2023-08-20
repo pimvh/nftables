@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Pim van Helvoirt
+  author: pimvh
   description: "role to configure nftables using a YAML file"
 
   license: GPL-3.0-only
